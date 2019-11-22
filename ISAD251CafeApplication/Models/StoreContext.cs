@@ -9,7 +9,7 @@ namespace ISAD251CafeApplication.Models
     public class StoreContext : DbContext
     {
         public DbSet<Items> Items { get; set; }
-        public DbSet<Menu> Menu { get; set; }
+        public DbSet<MenuItems> MenuItems { get; set; }
 
         
 

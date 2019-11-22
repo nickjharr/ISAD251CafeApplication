@@ -17,7 +17,7 @@ namespace ISAD251CafeApplication.Controllers
 
         public IActionResult Index()
         {
-            return View(_context.Menu);
+            return View(_context.MenuItems);
         }
         
     }
