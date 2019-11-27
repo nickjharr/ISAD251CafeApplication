@@ -9,13 +9,13 @@ using Newtonsoft.Json;
 
 namespace ISAD251CafeApplication.Controllers
 {
-    public class MenuItemsController : Controller
+    public class MenuController : Controller
     {
         private readonly StoreContext _context;
 
 
 
-        public MenuItemsController(StoreContext context)
+        public MenuController(StoreContext context)
         {
             _context = context;
         }
@@ -24,36 +24,26 @@ namespace ISAD251CafeApplication.Controllers
         [Route("[controller]")]
         public IActionResult Index()
         {
-            return View(_context.MenuItems.OrderBy(x => x.ItemCategory));
+            return View(_context.Menu.OrderBy(x => x.ItemCategory));
         }
 
         [Route("[controller]/[action]/{id}")]
         public IActionResult AddBasket(int id)
         {
-            //
-            var test = HttpContext.Session.GetString("basket");
-            //
+            List<Menu> basket = new List<Menu>();
+            Menu item = _context.Menu.Find(id);
+            string value = HttpContext.Session.GetString("basket");
 
-            List<MenuItems> basket = new List<MenuItems>();
-            MenuItems item = _context.MenuItems.Find(id);
-            string value = HttpContext.Session.GetString("basket");         
-           
             if (!string.IsNullOrEmpty(value))
             {
-                basket = JsonConvert.DeserializeObject<List<MenuItems>>(value);
+                basket = JsonConvert.DeserializeObject<List<Menu>>(value);
             }
 
             basket.Add(item);
 
             HttpContext.Session.SetString("basket", JsonConvert.SerializeObject(basket));
 
-            //
-            test = HttpContext.Session.GetString("basket");
-            //
-
             return RedirectToAction("Index");
         }
-
-
     }
 }

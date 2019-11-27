@@ -10,10 +10,9 @@ namespace ISAD251CafeApplication.Models
         public int OrderId { get; set; }
         public int TableNumber { get; set; }
         public decimal TotalPrice { get; set; }
-        public bool Cancelled { get; set; }
-        public bool Completed { get; set; }
+        public DateTime Cancelled { get; set; }
+        public DateTime Completed { get; set; }
         public DateTime Created  { get; set; }
-
 
     }
 }

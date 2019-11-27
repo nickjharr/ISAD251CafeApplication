@@ -1,0 +1,50 @@
+﻿@model IEnumerable<ISAD251CafeApplication.Models.Menu>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h2>Checkout - Finalise your order</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemDescription)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemPrice)
+            </th>
+
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ItemDescription)
+                </td>
+                <td>
+                    £@Html.DisplayFor(modelItem => item.ItemPrice)
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.ItemId">Edit</a>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+    <p><span>Total Price: £@Math.Round(Model.Sum(x => x.ItemPrice), 2)
+</span>
+    </p>
+
+
+
