@@ -8,14 +8,24 @@ namespace ISAD251CafeApplication.Models
 {
     public class StoreContext : DbContext
     {
-        public DbSet<Items> Items { get; set; }
-        public DbSet<Menu> Menu { get; set; }
+
+        public DbSet<OrderLines> OrderLines { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<OrderLines>()
+                .HasKey(o => new { o.OrderId, o.ItemId});
+        }
 
         
 
+        public DbSet<Items> Items { get; set; }
+        public DbSet<Menu> Menu { get; set; }
+        public DbSet<Orders> Orders { get; set; }
+
+
         public StoreContext(DbContextOptions<StoreContext> options) : base(options)
         {
-
+            
         }
 
     }

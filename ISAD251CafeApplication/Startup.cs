@@ -58,6 +58,7 @@ namespace ISAD251CafeApplication
 
             services.AddDbContext<StoreContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ISAD251_DB")));
 
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
