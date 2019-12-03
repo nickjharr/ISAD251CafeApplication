@@ -10,8 +10,9 @@
                 if (document.getElementById("txtTableNumber").value == "") {
                     alert("Nope");
                 } else {
-                    window.location.href = "/Checkout/CompleteOrder";
-                    alert("ok");
+                    var url = "/Checkout/CompleteOrder/" + document.getElementById("txtTableNumber").value
+                    alert(url);
+                    window.location.href = url;
                 }
             });
         });

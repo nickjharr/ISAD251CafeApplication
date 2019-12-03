@@ -33,6 +33,7 @@ namespace ISAD251CafeApplication.Controllers
             }
         }
 
+        [Route("[controller]/[action]/{tableNumber}")]
         public IActionResult CompleteOrder(int tableNumber)
         {
             string basket = HttpContext.Session.GetString("basket");
@@ -51,6 +52,7 @@ namespace ISAD251CafeApplication.Controllers
 
             _context.SaveChanges();
 
+            //TODO below looks gross in URL, only pass the ID and look it up again
             return RedirectToAction("OrderConfirmation", order);
         }
 
