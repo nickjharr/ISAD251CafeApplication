@@ -4,19 +4,20 @@
     ViewData["Title"] = "Index";
 }
 
-    <script>
-        $(document).ready(function () {
-            $("#btnPlaceOrder").click(function () {
-                if (document.getElementById("txtTableNumber").value == "") {
-                    alert("Nope");
-                } else {
-                    var url = "/Checkout/CompleteOrder/" + document.getElementById("txtTableNumber").value
-                    alert(url);
-                    window.location.href = url;
-                }
-            });
+<script>
+    $(document).ready(function () {
+        $("#btnPlaceOrder").click(function () {
+            if (document.getElementById("txtTableNumber").value == "") {
+                alert("Please enter a valid table number. (Between 1 and 30)");
+            } else if (document.getElementById("txtTableNumber").value < 1 || document.getElementById("txtTableNumber").value > 30) {
+                alert("Please enter a valid table number. (Between 1 and 30)");
+            } else {
+                var url = "/Checkout/CompleteOrder/" + document.getElementById("txtTableNumber").value
+                window.location.href = url;
+            }
         });
-    </script>
+    });
+</script>
 
 
 <h2>Checkout - Finalise your order</h2>
@@ -43,29 +44,30 @@
             </thead>
             <tbody>
 
-               @foreach (var item in Model)
-               {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ItemName)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.ItemDescription)
-                    </td>
-                    <td>
-                        £@Html.DisplayFor(modelItem => item.ItemPrice)
-                    </td>
-                    <td>
-                        <a asp-action="RemoveItem" asp-route-id="@item.ItemId">Remove</a>
-                    </td>
-                </tr>
-               }
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ItemName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.ItemDescription)
+                        </td>
+                        <td>
+                            £@Html.DisplayFor(modelItem => item.ItemPrice)
+                        </td>
+                        <td>
+                            <a asp-action="RemoveItem" asp-route-id="@item.ItemId">Remove</a>
+                        </td>
+                    </tr>
+                }
             </tbody>
         </table>
         <p>
             Total Price: £@Math.Round(Model.Sum(x => x.ItemPrice), 2)
         </p>
-        <input type="text" id="txtTableNumber" value="" />
+        <input type="number" id="txtTableNumber" min="1" max="30" pattern="/d+" value="" />
+
         <input type="button" class="btn-default" id="btnPlaceOrder" value="Place Order" />
 
     }
@@ -73,13 +75,13 @@
     {
 
         <p>Your shopping basket appears to be empty. We'll just redirect you back to the <a href="/menu">menu!</a></p>
-         <script>
-             setTimeout(function () {
-                 window.location.href = "/menu";
-             }, 3000);
-         </script>
-        }
+        <script>
+            setTimeout(function () {
+                window.location.href = "/menu";
+            }, 3000);
+        </script>
     }
+}
 
 
 

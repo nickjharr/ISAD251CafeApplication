@@ -12,7 +12,6 @@ namespace ISAD251CafeApplication.Controllers
     public class CheckoutController : Controller
     {
         private readonly StoreContext _context;
-
         public CheckoutController(StoreContext context)
         {
             _context = context;
@@ -47,17 +46,21 @@ namespace ISAD251CafeApplication.Controllers
 
             foreach (var ol in order.OrderLines)
             {
-                _context.OrderLines.Add(ol);
+                _context.OrderLines.Add(ol);  
             }
+            
+            _context.SaveChanges();                                        // commit order and orderlines to db
+            SetOrderCookie(order);                                         // store order(s) in cookie to retreive late
 
-            _context.SaveChanges();
+            HttpContext.Session.Clear();                                   // clear basket once order confirmed to avoid duplicates should 
 
-            //TODO below looks gross in URL, only pass the ID and look it up again
-            return RedirectToAction("OrderConfirmation", order);
+            return RedirectToAction("OrderConfirmation", order);           //TODO looks gross in URL, only pass the ID and look it up again
         }
 
         public IActionResult RemoveItem(int id)
         {
+
+            //TODO this can probably be tightened up
             string basket = HttpContext.Session.GetString("basket");
             List<Menu> basketObj = JsonConvert.DeserializeObject<List<Menu>>(basket);
 
@@ -97,8 +100,6 @@ namespace ISAD251CafeApplication.Controllers
 
             foreach (var item in basketObj)
             {
-                //add in OrderId assignment
-
                 OrderLines ol = new OrderLines(item);
 
                 if (orderLines.Contains(ol))
@@ -119,6 +120,33 @@ namespace ISAD251CafeApplication.Controllers
             }
 
             return orderLines;
+        }
+
+
+
+        private void SetOrderCookie(Orders order)
+        {
+            string existingCookieValue = GetOrderCookie();
+            List<Orders> orderList = new List<Orders>();
+
+            if (existingCookieValue != null && existingCookieValue != "")
+            {
+                orderList = JsonConvert.DeserializeObject<List<Orders>>(existingCookieValue);
+            }
+
+            orderList.Add(order);
+
+            string cookieValueJson = JsonConvert.SerializeObject(orderList);
+            
+            CookieOptions option = new CookieOptions();
+            option.Expires = DateTime.Now.AddMonths(1);
+            
+            Response.Cookies.Append("orders", cookieValueJson, option);
+        }
+
+        private string GetOrderCookie()
+        {
+            return Request.Cookies["orders"];
         }
 
     }

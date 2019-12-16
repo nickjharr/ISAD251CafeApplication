@@ -1,0 +1,90 @@
+﻿@model IEnumerable<ISAD251CafeApplication.Models.Orders>
+
+@{
+    ViewData["Title"] = "Order History";
+}
+
+<script>
+    $(document).ready(function () {
+        $("#frmOrderSearch").submit(function () {
+            var url = "/OrderHistory/" + document.getElementById("txtSearch").value
+            window.location.href = url;
+        });
+    });
+
+</script>
+
+<h2>Order History</h2>
+<p>We use cookies to keep track of your orders, if you don't use cookies (or haven't been here for a while) you can access your order using the order number here:</p>
+
+<form id="frmOrderSearch" onsubmit="return false">
+    <input type="text" id="txtSearch" />
+    <input type="submit" id="btnSearch" value="Search" />
+</form>
+
+@{
+    if (Model != null)
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.OrderId)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.TableNumber)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.TotalPrice)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Cancelled)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Completed)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Created)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.OrderId)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TableNumber)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.TotalPrice)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Cancelled)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Completed)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Created)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.OrderId">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.OrderId">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.OrderId">Delete</a>
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <h1>No Results Found </h1>
+        <p>Please use the search box above to locate your order</p>
+    }
+}
