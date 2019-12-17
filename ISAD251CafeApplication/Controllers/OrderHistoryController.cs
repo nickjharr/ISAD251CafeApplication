@@ -16,17 +16,25 @@ namespace ISAD251CafeApplication.Controllers
         {
             _context = context;
         }
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
 
-            List<Orders> ordersCookie = new List<Orders>();
-            string test = GetOrderCookie();
-            if (GetOrderCookie() != null)
+            List<int> orderNumbers = new List<int>();
+            string existingCookieValue = GetOrderCookie();
+
+            if (existingCookieValue != null && existingCookieValue != "")
             {
-                ordersCookie = JsonConvert.DeserializeObject<List<Orders>>(GetOrderCookie());
+                orderNumbers = JsonConvert.DeserializeObject<List<int>>(GetOrderCookie());
             }
 
-            return View(ordersCookie);
+            List<Orders> fullOrders = new List<Orders>();
+
+            foreach (int orderNumber in orderNumbers)
+            {
+                fullOrders.Add(await _context.Orders.FindAsync(orderNumber));
+            }
+
+            return View(fullOrders);
         }
 
         [Route("[controller]/{id}")]
@@ -43,9 +51,16 @@ namespace ISAD251CafeApplication.Controllers
             else
             {
                 return View(null);
-            }
-     
-            
+            }            
+        }
+
+        public async Task<IActionResult> Cancel(int id)
+        {
+            Orders order = await _context.Orders.FindAsync(id);
+            order.Cancelled = DateTime.Now;
+            _context.Orders.Update(order);
+            await _context.SaveChangesAsync();
+            return RedirectToAction("index", id);
         }
 
 

@@ -11,7 +11,6 @@
             window.location.href = url;
         });
     });
-
 </script>
 
 <h2>Order History</h2>
@@ -25,6 +24,7 @@
 @{
     if (Model != null)
     {
+
         <table class="table">
             <thead>
                 <tr>
@@ -38,10 +38,7 @@
                         @Html.DisplayNameFor(model => model.TotalPrice)
                     </th>
                     <th>
-                        @Html.DisplayNameFor(model => model.Cancelled)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Completed)
+                        Status
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.Created)
@@ -52,6 +49,22 @@
             <tbody>
                 @foreach (var item in Model)
                 {
+
+                    string status = "";
+
+                    if (item.Cancelled != null)
+                    {
+                        status = "Cancelled";
+                    }
+                    else if (item.Completed != null)
+                    {
+                        status = "Completed";
+                    }
+                    else
+                    {
+                        status = "Open";
+                    }
+
                     <tr>
                         <td>
                             @Html.DisplayFor(modelItem => item.OrderId)
@@ -63,18 +76,21 @@
                             @Html.DisplayFor(modelItem => item.TotalPrice)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Cancelled)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Completed)
+                            @status
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.Created)
                         </td>
                         <td>
                             <a asp-action="Edit" asp-route-id="@item.OrderId">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.OrderId">Details</a> |
-                            <a asp-action="Delete" asp-route-id="@item.OrderId">Delete</a>
+                            <a asp-action="Details" asp-route-id="@item.OrderId">Details</a> 
+                            @{
+                                if (status != "Cancelled")
+                                {
+                                    <a asp-action="Cancel" asp-route-id="@item.OrderId">| Cancel</a>
+                                }
+                            }
+
                         </td>
                     </tr>
                 }

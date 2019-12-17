@@ -50,7 +50,7 @@ namespace ISAD251CafeApplication.Controllers
             }
             
             _context.SaveChanges();                                        // commit order and orderlines to db
-            SetOrderCookie(order);                                         // store order(s) in cookie to retreive late
+            SetOrderCookie(order.OrderId);                                         // store order(s) in cookie to retreive late
 
             HttpContext.Session.Clear();                                   // clear basket once order confirmed to avoid duplicates should 
 
@@ -122,26 +122,24 @@ namespace ISAD251CafeApplication.Controllers
             return orderLines;
         }
 
-
-
-        private void SetOrderCookie(Orders order)
+        private void SetOrderCookie(int orderNumber)
         {
             string existingCookieValue = GetOrderCookie();
-            List<Orders> orderList = new List<Orders>();
+            List<int> orderNumbers = new List<int>();
 
             if (existingCookieValue != null && existingCookieValue != "")
             {
-                orderList = JsonConvert.DeserializeObject<List<Orders>>(existingCookieValue);
+                orderNumbers = JsonConvert.DeserializeObject<List<int>>(existingCookieValue);
             }
 
-            orderList.Add(order);
+            orderNumbers.Add(orderNumber);
 
-            string cookieValueJson = JsonConvert.SerializeObject(orderList);
+            string newCookieValueJson = JsonConvert.SerializeObject(orderNumbers);
             
             CookieOptions option = new CookieOptions();
             option.Expires = DateTime.Now.AddMonths(1);
             
-            Response.Cookies.Append("orders", cookieValueJson, option);
+           Response.Cookies.Append("orders", newCookieValueJson, option);
         }
 
         private string GetOrderCookie()
