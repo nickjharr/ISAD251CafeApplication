@@ -13,8 +13,6 @@ namespace ISAD251CafeApplication.Controllers
     {
         private readonly StoreContext _context;
 
-
-
         public MenuController(StoreContext context)
         {
             _context = context;
@@ -32,19 +30,39 @@ namespace ISAD251CafeApplication.Controllers
         {
 
             List<Menu> basket = new List<Menu>();
-            Menu item = _context.Menu.Find(id);
-            string value = HttpContext.Session.GetString("basket");
 
-            if (!string.IsNullOrEmpty(value))
+            string sessionBasketString = HttpContext.Session.GetString("basket");
+
+            if (!string.IsNullOrEmpty(sessionBasketString))
             {
-                basket = JsonConvert.DeserializeObject<List<Menu>>(value);
+                basket = JsonConvert.DeserializeObject<List<Menu>>(sessionBasketString);
             }
 
-            basket.Add(item);
+            int i = 0;
+            bool duplicateFound = false;
+            Menu tempItem;
+
+            while (duplicateFound == false && i < basket.Count)
+            {
+                if (basket[i].ItemId == id)
+                {
+                    tempItem = basket[i];
+                    basket.Add(tempItem);
+                    duplicateFound = true;
+                }
+
+                i++;
+            }
+
+            if (duplicateFound != true)
+            {
+                Menu item = _context.Menu.Find(id);
+                basket.Add(item);
+            }
 
             HttpContext.Session.SetString("basket", JsonConvert.SerializeObject(basket));
-
+           
             return RedirectToAction("Index");
-        }
+        }              
     }
 }

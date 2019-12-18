@@ -1,21 +1,33 @@
 ﻿@model ISAD251CafeApplication.Models.Orders
 
 @{
-    ViewData["Title"] = "OrderConfirmation";
+    ViewData["Title"] = "Details";
+
+    string status = "";
+
+    if (Model.Cancelled != null)
+    {
+        status = "Cancelled";
+    }
+    else if (Model.Completed != null)
+    {
+        status = "Completed";
+    }
+    else
+    {
+        status = "Open";
+    }
+
+
+
 }
 
-<h2>OrderConfirmation</h2>
+<h2>Details</h2>
 
 <div>
     <h4>Orders</h4>
     <hr />
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.OrderId)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.OrderId)
-        </dd>
         <dt>
             @Html.DisplayNameFor(model => model.TableNumber)
         </dt>
@@ -29,16 +41,10 @@
             @Html.DisplayFor(model => model.TotalPrice)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Cancelled)
+            Status
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Cancelled)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Completed)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Completed)
+            @status 
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Created)
@@ -47,4 +53,19 @@
             @Html.DisplayFor(model => model.Created)
         </dd>
     </dl>
+
+    @{ 
+        foreach(OrderLines ol in Model.OrderLines)
+        {
+
+            <ul>
+                <li> @ol.ItemId, @ol.ItemName, @ol.Quantity, @ol.UnitPrice : @Model.TotalPrice</li>
+            </ul>
+        }
+    }
+
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.OrderId">Edit</a> |
+    <a asp-action="Index">Back to List</a>
 </div>

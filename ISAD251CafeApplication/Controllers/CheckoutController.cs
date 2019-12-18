@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using ISAD251CafeApplication.Models;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace ISAD251CafeApplication.Controllers
 {
@@ -35,7 +36,10 @@ namespace ISAD251CafeApplication.Controllers
         [Route("[controller]/[action]/{tableNumber}")]
         public IActionResult CompleteOrder(int tableNumber)
         {
+
             string basket = HttpContext.Session.GetString("basket");
+            HttpContext.Session.Clear(); 
+
             List<Menu> basketObj = JsonConvert.DeserializeObject<List<Menu>>(basket);
 
             Orders order = new Orders(tableNumber, basketObj);
@@ -43,18 +47,16 @@ namespace ISAD251CafeApplication.Controllers
             order.OrderLines = ConvertToOrderLines(basketObj);
 
             _context.Orders.Add(order);
+            _context.SaveChanges();                                        // commit order and orderlines to db
+            SetOrderCookie(order.OrderId);                                 // store order(s) in cookie to retreive late
 
             foreach (var ol in order.OrderLines)
             {
-                _context.OrderLines.Add(ol);  
+                ol.ItemName = _context.Items.Find(ol.ItemId).ItemName;
             }
-            
-            _context.SaveChanges();                                        // commit order and orderlines to db
-            SetOrderCookie(order.OrderId);                                         // store order(s) in cookie to retreive late
 
-            HttpContext.Session.Clear();                                   // clear basket once order confirmed to avoid duplicates should 
 
-            return RedirectToAction("OrderConfirmation", order);           //TODO looks gross in URL, only pass the ID and look it up again
+            return View(order);           //TODO looks gross in URL, only pass the ID and look it up again
         }
 
         public IActionResult RemoveItem(int id)
@@ -84,10 +86,6 @@ namespace ISAD251CafeApplication.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult OrderConfirmation(Orders order)
-        {
-            return View(order);
-        }
 
         /// <summary>
         /// Converts a list of Menu items (shopping basket) to List of orderLines
@@ -96,26 +94,34 @@ namespace ISAD251CafeApplication.Controllers
         private List<OrderLines> ConvertToOrderLines(List<Menu> basketObj)
         {
 
-            List<OrderLines> orderLines = new List<OrderLines>();
+            List<OrderLines> orderLines = new List<OrderLines>(); 
+          
+            //TODO make SRP compliant, factor out checks for duplicates
 
             foreach (var item in basketObj)
             {
-                OrderLines ol = new OrderLines(item);
+                OrderLines tempOrderLine = new OrderLines(item);
+                bool itemAlreadyInList = false;
 
-                if (orderLines.Contains(ol))
+                if (orderLines.Count == 0)
                 {
-                    int i = 0;
-                    while (orderLines[0] != ol)
-                    {
-                        i++;
-                    }
-
-                    orderLines[i].Quantity++;
-
+                    orderLines.Add(tempOrderLine);
                 }
                 else
                 {
-                    orderLines.Add(ol);
+                    foreach (var ol in orderLines)
+                    {
+                        if (ol.ItemId == item.ItemId)
+                        {
+                            ol.Quantity++;
+                            itemAlreadyInList = true;
+                        }
+
+                    }
+                    if (!itemAlreadyInList)
+                    {
+                        orderLines.Add(new OrderLines(item));
+                    }
                 }
             }
 
@@ -139,7 +145,7 @@ namespace ISAD251CafeApplication.Controllers
             CookieOptions option = new CookieOptions();
             option.Expires = DateTime.Now.AddMonths(1);
             
-           Response.Cookies.Append("orders", newCookieValueJson, option);
+            Response.Cookies.Append("orders", newCookieValueJson, option);
         }
 
         private string GetOrderCookie()

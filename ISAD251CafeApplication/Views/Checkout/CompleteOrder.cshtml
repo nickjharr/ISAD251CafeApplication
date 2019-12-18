@@ -1,0 +1,72 @@
+﻿@model ISAD251CafeApplication.Models.Orders
+
+@{
+    ViewData["Title"] = "OrderConfirmation";
+
+    string status = "";
+
+    if (Model.Cancelled != null)
+    {
+        status = "Cancelled";
+    }
+    else if (Model.Completed != null)
+    {
+        status = "Completed";
+    }
+    else
+    {
+        status = "Open";
+    }
+
+}
+
+<h2>OrderConfirmation</h2>
+
+<div>
+    <h4>Orders</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.OrderId)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.OrderId)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TableNumber)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TableNumber)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TotalPrice)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TotalPrice)
+        </dd>
+        <dt>
+            Status
+        </dt>
+        <dd>
+            @status
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+    </dl>
+
+    @{
+        foreach (var ol in Model.OrderLines)
+        {
+            <ul>
+                <li> @ol.ItemId, @ol.ItemName, @ol.Quantity, @ol.UnitPrice : @Model.TotalPrice</li>
+            </ul>
+        }
+    }
+
+</div>
+
+

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,7 +24,7 @@ namespace ISAD251CafeApplication.Models
             TableNumber = tableNumber;
             TotalPrice = order.Sum(x => x.ItemPrice);
             Created = DateTime.Now;
-            OrderLines = new HashSet<OrderLines>();
+            //OrderLines = new HashSet<OrderLines>();
         }
 
         public Orders()

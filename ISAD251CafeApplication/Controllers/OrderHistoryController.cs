@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ISAD251CafeApplication.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace ISAD251CafeApplication.Controllers
@@ -41,7 +42,7 @@ namespace ISAD251CafeApplication.Controllers
         public async Task<IActionResult> Index(int id)
         {
             Orders result = await _context.Orders.FindAsync(id);
-
+            
             if (result != null)
             {
                 List<Orders> results = new List<Orders>();
@@ -63,6 +64,20 @@ namespace ISAD251CafeApplication.Controllers
             return RedirectToAction("index", id);
         }
 
+
+        public IActionResult Details(int id)
+        {
+            //TODO tidy up construction of model
+            Orders order = _context.Orders.Find(id);            
+            order.OrderLines = _context.OrderLines.Where(x => x.OrderId == order.OrderId).ToList();
+           
+            foreach(OrderLines ol in order.OrderLines)
+            {
+                ol.ItemName = _context.Items.Find(ol.ItemId).ItemName;
+            }
+
+            return View(order);
+        }
 
         private string GetOrderCookie()
         {
