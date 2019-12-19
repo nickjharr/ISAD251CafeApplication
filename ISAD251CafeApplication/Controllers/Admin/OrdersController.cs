@@ -4,37 +4,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using ISAD251CafeApplication.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 
-namespace ISAD251CafeApplication.Controllers
+namespace ISAD251CafeApplication.Controllers.Admin
 {
-    public class OrderHistoryController : Controller
+    public class OrdersController : Controller
     {
         private readonly StoreContext _context;
 
-        public OrderHistoryController(StoreContext context)
+        public OrdersController(StoreContext context)
         {
             _context = context;
         }
         [Route("[controller]")]
         public IActionResult Index()
         {
-
-            List<int> orderNumbers = new List<int>();
-            string existingCookieValue = GetOrderCookie();
-
-            if (existingCookieValue != null && existingCookieValue != "")
-            {
-                orderNumbers = JsonConvert.DeserializeObject<List<int>>(GetOrderCookie());
-            }
-
             List<Orders> orders = new List<Orders>();
-
-            foreach (int orderNumber in orderNumbers)
-            {
-                orders.Add( _context.Orders.Find(orderNumber));
-            }
+            orders = _context.Orders.ToList();
 
             orders = BuildOrderlines(orders);
 
@@ -45,26 +30,23 @@ namespace ISAD251CafeApplication.Controllers
         public IActionResult Index(int id)
         {
             List<Orders> orders = new List<Orders>();
-            orders.Add( _context.Orders.Find(id));
+            orders.Add(_context.Orders.Find(id));
+
             orders = BuildOrderlines(orders);
 
-
-            //TODO propogate null checks - been very lazy 
-            //TODO standardise list building either .Add(Stuff) or list = _context.ToList(); - difference could just be lists vs singular
-            //TODO standardise sync/async
-            
-            
             return View(orders);
-     
         }
 
-        public async Task<IActionResult> Cancel(int id)
+        [Route("[controller]/[action]/{id}")]
+        public IActionResult OrderComplete(int id)
         {
-            Orders order = await _context.Orders.FindAsync(id);
-            order.Cancelled = DateTime.Now;
+
+            Orders order = _context.Orders.Find(id);
+            order.Completed = DateTime.Now;
             _context.Orders.Update(order);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("index", id);
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
         /// <summary>
@@ -80,7 +62,7 @@ namespace ISAD251CafeApplication.Controllers
                 o.OrderLines = _context.OrderLines
                     .Where(x => x.OrderId == o.OrderId)
                     .ToList();
-
+                //TODO null check check check null check
                 foreach (OrderLines ol in o.OrderLines)
                 {
                     //TODO see if this can be taken offline
@@ -90,12 +72,6 @@ namespace ISAD251CafeApplication.Controllers
 
             return orders;
         }
-
-        private string GetOrderCookie()
-        {
-            return Request.Cookies["orders"];
-        }
-
 
     }
 }

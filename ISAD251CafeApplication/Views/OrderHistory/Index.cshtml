@@ -43,6 +43,9 @@
                     <th>
                         @Html.DisplayNameFor(model => model.Created)
                     </th>
+                    <th>
+                        Order Details
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -79,15 +82,45 @@
                             @status
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Created)
+                            @{
+                                TimeSpan ts = DateTime.Now - item.Created;
+                                if (ts.TotalMinutes < 60)
+                                {
+                                    <p>
+                                        @Math.Round(ts.TotalMinutes, 0)
+                                        min(s) ago
+                                    </p>
+                                }
+                                else if (ts.TotalHours < 24)
+                                {
+                                    <p>
+                                        @Math.Round(ts.TotalHours, 0)
+                                        hour(s) ago
+                                    </p>
+                                }
+                                else
+                                {
+                                    @item.Created;
+                                }
+                            }
                         </td>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@item.OrderId">Edit</a> |
-                            <a asp-action="Details" asp-route-id="@item.OrderId">Details</a> 
+                            @{
+                                foreach (var ol in item.OrderLines)
+                                {
+                                    decimal linePrice = Math.Round(ol.Quantity * ol.UnitPrice, 2);
+
+                                    <ul>
+                                        <li> @ol.Quantity x @ol.ItemName &#64; &pound;@Math.Round(ol.UnitPrice, 2)  [&pound;@linePrice]</li>
+                                    </ul>
+                                }
+                            }
+                        </td>
+                        <td>
                             @{
                                 if (status != "Cancelled")
                                 {
-                                    <a asp-action="Cancel" asp-route-id="@item.OrderId">| Cancel</a>
+                                    <a asp-action="Cancel" asp-route-id="@item.OrderId"> Cancel</a>
                                 }
                             }
 
