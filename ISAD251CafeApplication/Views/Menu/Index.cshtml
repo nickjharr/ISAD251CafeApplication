@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ISAD251CafeApplication.Models.Menu>
+﻿@model IEnumerable<ISAD251CafeApplication.Models.Items>
 
 @{
     ViewData["Title"] = "Index";
@@ -32,5 +32,5 @@
 </table>
 
 <div style="text-align:right; padding-right:85px">
-    <input id ="btnCheckout" type="button" class="btn-default" value="Complete Order" style="text-align: right;" onclick="window.location.href='/Checkout'" />
+    <input id ="btnCheckout" type="button" class="btn-default" value="Complete Order" style="text-align: right;" onclick="window.location.href='/Menu/Checkout'" />
 </div>

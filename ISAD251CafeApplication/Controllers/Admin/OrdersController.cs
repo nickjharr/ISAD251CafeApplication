@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ISAD251CafeApplication.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ISAD251CafeApplication.Controllers.Admin
 {
@@ -19,7 +20,7 @@ namespace ISAD251CafeApplication.Controllers.Admin
         public IActionResult Index()
         {
             List<Orders> orders = new List<Orders>();
-            orders = _context.Orders.ToList();
+            orders = _context.Orders.OrderBy(x => x.Created).ToList();
 
             orders = BuildOrderlines(orders);
 
@@ -43,7 +44,7 @@ namespace ISAD251CafeApplication.Controllers.Admin
 
             Orders order = _context.Orders.Find(id);
             order.Completed = DateTime.Now;
-            _context.Orders.Update(order);
+            _context.Entry(order).State = EntityState.Modified;
             _context.SaveChanges();
 
             return RedirectToAction("Index");
@@ -57,15 +58,16 @@ namespace ISAD251CafeApplication.Controllers.Admin
         /// <returns></returns>
         private List<Orders> BuildOrderlines(List<Orders> orders)
         {
+            //TODO Attempt to optimise this algorithm
+            //TODO Handle nulls
             foreach (Orders o in orders)
             {
                 o.OrderLines = _context.OrderLines
                     .Where(x => x.OrderId == o.OrderId)
                     .ToList();
-                //TODO null check check check null check
+
                 foreach (OrderLines ol in o.OrderLines)
                 {
-                    //TODO see if this can be taken offline
                     ol.ItemName = _context.Items.Find(ol.ItemId).ItemName;
                 }
             }

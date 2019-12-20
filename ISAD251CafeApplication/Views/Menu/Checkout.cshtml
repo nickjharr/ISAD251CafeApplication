@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ISAD251CafeApplication.Models.Menu>
+﻿@model IEnumerable<ISAD251CafeApplication.Models.Items>
 
 @{
     ViewData["Title"] = "Index";
@@ -12,7 +12,7 @@
             } else if (document.getElementById("txtTableNumber").value < 1 || document.getElementById("txtTableNumber").value > 30) {
                 alert("Please enter a valid table number. (Between 1 and 30)");
             } else {
-                var url = "/Checkout/CompleteOrder/" + document.getElementById("txtTableNumber").value
+                var url = "/Menu/CompleteOrder/" + document.getElementById("txtTableNumber").value
                 window.location.href = url;
             }
         });

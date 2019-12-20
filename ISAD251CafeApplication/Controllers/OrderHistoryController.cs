@@ -9,6 +9,12 @@ using Newtonsoft.Json;
 
 namespace ISAD251CafeApplication.Controllers
 {
+
+    //TODO propogate null checks - been very lazy 
+    //TODO standardise list building either .Add(Stuff) or list = _context.ToList(); - difference could just be lists vs singular
+    //TODO standardise sync/async
+
+
     public class OrderHistoryController : Controller
     {
         private readonly StoreContext _context;
@@ -17,27 +23,13 @@ namespace ISAD251CafeApplication.Controllers
         {
             _context = context;
         }
+
+        [ActionName("Index")]
         [Route("[controller]")]
         public IActionResult Index()
         {
-
-            List<int> orderNumbers = new List<int>();
-            string existingCookieValue = GetOrderCookie();
-
-            if (existingCookieValue != null && existingCookieValue != "")
-            {
-                orderNumbers = JsonConvert.DeserializeObject<List<int>>(GetOrderCookie());
-            }
-
-            List<Orders> orders = new List<Orders>();
-
-            foreach (int orderNumber in orderNumbers)
-            {
-                orders.Add( _context.Orders.Find(orderNumber));
-            }
-
-            orders = BuildOrderlines(orders);
-
+            List<Orders> orders = GetOrdersFromCookies();
+            orders = orders.OrderBy(x => x.Created).ToList();
             return View(orders);
         }
 
@@ -48,23 +40,19 @@ namespace ISAD251CafeApplication.Controllers
             orders.Add( _context.Orders.Find(id));
             orders = BuildOrderlines(orders);
 
-
-            //TODO propogate null checks - been very lazy 
-            //TODO standardise list building either .Add(Stuff) or list = _context.ToList(); - difference could just be lists vs singular
-            //TODO standardise sync/async
-            
-            
             return View(orders);
      
         }
 
-        public async Task<IActionResult> Cancel(int id)
+        public IActionResult Cancel(int id)
         {
-            Orders order = await _context.Orders.FindAsync(id);
+            Orders order = _context.Orders.Find(id);
             order.Cancelled = DateTime.Now;
-            _context.Orders.Update(order);
-            await _context.SaveChangesAsync();
-            return RedirectToAction("index", id);
+
+            _context.Entry(order).State = EntityState.Modified;
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
         }
 
         /// <summary>
@@ -75,27 +63,51 @@ namespace ISAD251CafeApplication.Controllers
         /// <returns></returns>
         private List<Orders> BuildOrderlines(List<Orders> orders)
         {
-            foreach (Orders o in orders)
+            //TODO Attempt to optimise this algorithm
+            //TODO Handle nulls
+            if (orders != null)
             {
-                o.OrderLines = _context.OrderLines
-                    .Where(x => x.OrderId == o.OrderId)
-                    .ToList();
-
-                foreach (OrderLines ol in o.OrderLines)
+                foreach (Orders o in orders)
                 {
-                    //TODO see if this can be taken offline
-                    ol.ItemName = _context.Items.Find(ol.ItemId).ItemName;
+                    o.OrderLines = _context.OrderLines
+                        .Where(x => x.OrderId == o.OrderId)
+                        .ToList();
+
+
+                    foreach (OrderLines ol in o.OrderLines)
+                    {
+                        ol.ItemName = _context.Items.Find(ol.ItemId).ItemName;
+                    }
                 }
             }
 
             return orders;
         }
 
-        private string GetOrderCookie()
+        /// <summary>
+        /// A method that reads the sites cookies and retreives the customers order history. 
+        /// Converts from string to List<Items>
+        /// </summary>
+        /// <returns></returns>
+        private List<Orders> GetOrdersFromCookies()
         {
-            return Request.Cookies["orders"];
-        }
+            string cookieString = Request.Cookies["orders"];
+            List<int> orderNumbers = new List<int>();
+            List<Orders> orders = new List<Orders>();
+            if (cookieString != null && cookieString != "")
+            {
+                orderNumbers = JsonConvert.DeserializeObject<List<int>>(cookieString);
+            }
 
+            foreach(int on in orderNumbers)
+            {
+                orders.Add(_context.Orders.Find(on));
+            }
+
+            orders = BuildOrderlines(orders);
+
+            return orders;
+        }
 
     }
 }

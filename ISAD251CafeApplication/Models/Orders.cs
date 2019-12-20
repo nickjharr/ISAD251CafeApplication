@@ -19,7 +19,7 @@ namespace ISAD251CafeApplication.Models
         public DateTime Created  { get; set; }
         public ICollection<OrderLines> OrderLines { get; set; }
 
-        public Orders(int tableNumber, List<Menu> order)
+        public Orders(int tableNumber, List<Items> order)
         {
             TableNumber = tableNumber;
             TotalPrice = order.Sum(x => x.ItemPrice);
@@ -29,7 +29,7 @@ namespace ISAD251CafeApplication.Models
 
         public Orders()
         {
-
+            
         }
     }
 }

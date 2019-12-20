@@ -26,7 +26,7 @@ namespace ISAD251CafeApplication.Models
         public string ItemName { get; set; }
 
 
-        public OrderLines(Menu item) //int? orderId)
+        public OrderLines(Items item) //int? orderId)
         {
             //OrderId = orderId;
             ItemId = item.ItemId;

@@ -20,41 +20,23 @@ namespace ISAD251CafeApplication.Controllers
 
         public IActionResult Index()
         {
-            string basket = HttpContext.Session.GetString("basket");
-
-            if (basket != null)
-            {
-                List<Menu> basketObj = JsonConvert.DeserializeObject<List<Menu>>(basket);
-                return View(basketObj.OrderBy(x => x.ItemCategory));
-            }
-            else
-            {
-                return View();
-            }
+            return View(GetBasketAsList());
         }
 
         [Route("[controller]/[action]/{tableNumber}")]
         public IActionResult CompleteOrder(int tableNumber)
         {
+            List<Items> basket = GetBasketAsList();
+            HttpContext.Session.Clear();
 
-            string basket = HttpContext.Session.GetString("basket");
-            HttpContext.Session.Clear(); 
-
-            List<Menu> basketObj = JsonConvert.DeserializeObject<List<Menu>>(basket);
-
-            Orders order = new Orders(tableNumber, basketObj);
-
-            order.OrderLines = ConvertToOrderLines(basketObj);
+            Orders order = new Orders(tableNumber, basket);
+            order.OrderLines = ConvertToOrderLines(basket);
+            PopulateItemNames(ref order);
 
             _context.Orders.Add(order);
+
             _context.SaveChanges();                                        // commit order and orderlines to db
-            SetOrderCookie(order.OrderId);                                 // store order(s) in cookie to retreive late
-
-            foreach (var ol in order.OrderLines)
-            {
-                ol.ItemName = _context.Items.Find(ol.ItemId).ItemName;
-            }
-
+            AppendOrderCookie(order.OrderId);                              // store order(s) in cookie to retreive late
 
             return View(order);           //TODO looks gross in URL, only pass the ID and look it up again
         }
@@ -62,21 +44,20 @@ namespace ISAD251CafeApplication.Controllers
         public IActionResult RemoveItem(int id)
         {
 
-            //TODO this can probably be tightened up
-            string basket = HttpContext.Session.GetString("basket");
-            List<Menu> basketObj = JsonConvert.DeserializeObject<List<Menu>>(basket);
+            List<Items> basket = GetBasketAsList();
 
             int i = 0;
 
-            while(i < basketObj.Count && basketObj[i].ItemId != id)
+            while(i < basket.Count && basket[i].ItemId != id)
             {
                 i++;
             }
 
-            basketObj.RemoveAt(i);
-            if(basketObj.Count > 0)
+            basket.RemoveAt(i);
+
+            if(basket.Count > 0)
             {
-                HttpContext.Session.SetString("basket", JsonConvert.SerializeObject(basketObj));
+                SetBasketInSession(basket);
             }
             else
             {
@@ -88,15 +69,14 @@ namespace ISAD251CafeApplication.Controllers
 
 
         /// <summary>
-        /// Converts a list of Menu items (shopping basket) to List of orderLines
+        /// Converts a List<Items> (shopping basket) to List of orderLines
         /// Ensures each item only listed once and allocates appropriate quantity.
         /// </summary>
-        private List<OrderLines> ConvertToOrderLines(List<Menu> basketObj)
+        private List<OrderLines> ConvertToOrderLines(List<Items> basketObj)
         {
 
             List<OrderLines> orderLines = new List<OrderLines>(); 
           
-            //TODO make SRP compliant, factor out checks for duplicates
 
             foreach (var item in basketObj)
             {
@@ -128,17 +108,32 @@ namespace ISAD251CafeApplication.Controllers
             return orderLines;
         }
 
-        private void SetOrderCookie(int orderNumber)
+        private List<Items> GetBasketAsList()
         {
-            string existingCookieValue = GetOrderCookie();
-            List<int> orderNumbers = new List<int>();
-
-            if (existingCookieValue != null && existingCookieValue != "")
+            string basketString = HttpContext.Session.GetString("basket");
+            List<Items> basketList = new List<Items>();
+            
+            if(basketString != null && basketString != "")
             {
-                orderNumbers = JsonConvert.DeserializeObject<List<int>>(existingCookieValue);
+                basketList = JsonConvert.DeserializeObject<List<Items>>(basketString);
+                basketList.OrderBy(x => x.ItemCategory);
             }
 
-            orderNumbers.Add(orderNumber);
+            return basketList;
+        }
+
+        private void AppendOrderCookie(int id)
+        {
+            string existingCookie = Request.Cookies["orders"];
+
+            List<int> orderNumbers = new List<int>();
+
+            if (existingCookie != null)
+            {
+                orderNumbers = JsonConvert.DeserializeObject<List<int>>(existingCookie);
+            }
+
+            orderNumbers.Add(id);
 
             string newCookieValueJson = JsonConvert.SerializeObject(orderNumbers);
             
@@ -148,9 +143,17 @@ namespace ISAD251CafeApplication.Controllers
             Response.Cookies.Append("orders", newCookieValueJson, option);
         }
 
-        private string GetOrderCookie()
+        private void PopulateItemNames(ref Orders order)
         {
-            return Request.Cookies["orders"];
+            foreach (var ol in order.OrderLines)
+            {
+                ol.ItemName = _context.Items.Find(ol.ItemId).ItemName;
+            }
+        }
+
+        private void SetBasketInSession(List<Items> basket)
+        {
+            HttpContext.Session.SetString("basket", JsonConvert.SerializeObject(basket));
         }
 
     }

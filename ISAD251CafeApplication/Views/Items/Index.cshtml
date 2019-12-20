@@ -1,10 +1,26 @@
 ﻿@model IEnumerable<ISAD251CafeApplication.Models.Items>
 
+<script>
+    $(document).ready(function () {
+        $("#frmItemSearch").submit(function () {
+            var url = "/Items/ItemSearch/" + document.getElementById("txtSearch").value
+            window.location.href = url;
+        });
+    });
+</script>
+
+
 @{
     ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <h2>Index</h2>
+
+<form id="frmItemSearch" onsubmit="return false">
+    <input type="text" id="txtSearch" />
+    <input type="submit" id="btnSearch" value="Search" />
+</form>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -12,6 +28,9 @@
 <table class="table">
     <thead>
         <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.ItemId)
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.ItemCategory)
             </th>
@@ -28,6 +47,9 @@
                 @Html.DisplayNameFor(model => model.Active)
             </th>
             <th>
+               @Html.DisplayNameFor(model => model.ItemStock)
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Created)
             </th>
             <th></th>
@@ -36,6 +58,9 @@
     <tbody>
 @foreach (var item in Model) {
         <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ItemId)
+            </td>
             <td>
                 @Html.DisplayFor(modelItem => item.ItemCategory)
             </td>
@@ -52,12 +77,27 @@
                 @Html.DisplayFor(modelItem => item.Active)
             </td>
             <td>
+                @Html.DisplayFor(modelItem => item.ItemStock)
+            </td>
+            <td>
                 @Html.DisplayFor(modelItem => item.Created)
             </td>
             <td>
                 <a asp-action="Edit" asp-route-id="@item.ItemId">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.ItemId">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.ItemId">Delete</a>
+
+
+                @{
+                    if (item.Active)
+                    {
+                        <a asp-action="ToggleMenuStatus" asp-route-id="@item.ItemId">Remove From Menu</a>
+                    }
+                    else
+                    {
+                        <a asp-action="ToggleMenuStatus" asp-route-id="@item.ItemId">Add To Menu</a>
+                    }
+                }
+
+
             </td>
         </tr>
 }

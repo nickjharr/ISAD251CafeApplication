@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ISAD251CafeApplication.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ISAD251CafeApplication.Controllers.Admin
 {
@@ -19,16 +20,13 @@ namespace ISAD251CafeApplication.Controllers.Admin
         public IActionResult Index()
         {
             List<Orders> orders = new List<Orders>();
-            orders = _context.Orders
-                .Where(x => x.Completed == null && x.Cancelled == null)
-                .OrderBy(x => x.Created)
-                .ToList();
+            orders = _context.OpenOrders.OrderBy(x => x.Created)
+                                        .ToList();
 
             foreach (Orders o in orders)
             {
-                o.OrderLines = _context.OrderLines
-                    .Where(x => x.OrderId == o.OrderId)
-                    .ToList();
+                o.OrderLines = _context.OrderLines.Where(x => x.OrderId == o.OrderId)
+                                                    .ToList();
 
                 foreach (OrderLines ol in o.OrderLines)
                 {
@@ -38,5 +36,17 @@ namespace ISAD251CafeApplication.Controllers.Admin
             }
             return View(orders);
         }
+
+        public IActionResult OrderComplete(int id)
+        {
+
+            Orders order = _context.Orders.Find(id);
+            order.Completed = DateTime.Now;
+            _context.Entry(order).State = EntityState.Modified;
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+
     }
 }
