@@ -22,6 +22,7 @@
     </environment>
 </head>
 <body>
+
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
             <div class="navbar-header">
@@ -44,14 +45,12 @@
     </nav>
 
     <partial name="_CookieConsentPartial" />
-
-    <div class="container body-content">
         @RenderBody()
        
         <footer>
             <p>&copy; 2019 - ISAD251CafeApplication</p>
         </footer>
-    </div>
+
 
     <environment include="Development">
         <script src="~/lib/jquery/dist/jquery.js"></script>

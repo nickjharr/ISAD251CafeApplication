@@ -7,112 +7,125 @@
 
 <h2>Dashboard - Open Orders</h2>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.OrderId)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TableNumber)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.TotalPrice)
-            </th>
-            <th>
-                Status
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Created)
-            </th>
-            <th>
-                Order Details
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @{
-            foreach (var item in Model)
-            {
-
-                string status = "";
-
-                if (item.Cancelled != null)
-                {
-                    status = "Cancelled";
-                }
-                else if (item.Completed != null)
-                {
-                    status = "Completed";
-                }
-                else
-                {
-                    status = "Open";
-                }
+@{
+    if (Model != null && Model.Count() > 0)
+    {
 
 
 
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.OrderId)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.TableNumber)
-                    </td>
-                    <td>
-                        &pound;@Html.DisplayFor(modelItem => item.TotalPrice)
-                    </td>
-                    <td>
-                        @status
-                    </td>
-
-                    <td>
-                        @{
-                            TimeSpan ts = DateTime.Now - item.Created;
-                            if (ts.TotalMinutes < 60)
-                            {
-                                <p>
-                                    @Math.Round(ts.TotalMinutes, 0)
-                                    min(s) ago
-                                </p>
-                            }
-                            else if (ts.TotalHours < 24)
-                            {
-                                <p>
-                                    @Math.Round(ts.TotalHours, 0)
-                                    hour(s) ago
-                                </p>
-                            }
-                            else
-                            {
-                                @item.Created;
-                            }
-                        }
-                    </td>
-                    <td>
-                        @{
-                            foreach (var ol in item.OrderLines)
-                            {
-                                decimal linePrice = Math.Round(ol.Quantity * ol.UnitPrice, 2);
-
-                                <ul>
-                                    <li> @ol.Quantity x @ol.ItemName &#64; &pound;@Math.Round(ol.UnitPrice, 2)  [&pound;@linePrice]</li>
-                                </ul>
-                            }
-                        }
-                    </td>
-                    <td>
-                        @{
-                            if (item.Cancelled == null && item.Completed == null)
-                            {
-                                <a asp-action="OrderComplete" asp-route-id="@item.OrderId">Mark as Completed</a>
-                            }
-                        }
-
-                    </td>
+                    <th>
+                        @Html.DisplayNameFor(model => model.OrderId)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.TableNumber)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.TotalPrice)
+                    </th>
+                    <th>
+                        Status
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Created)
+                    </th>
+                    <th>
+                        Order Details
+                    </th>
+                    <th></th>
                 </tr>
-            }
-        }
-    </tbody>
-   </table>
+            </thead>
+            <tbody>
+                @{
+                    foreach (var item in Model)
+                    {
+
+                        string status = "";
+
+                        if (item.Cancelled != null)
+                        {
+                            status = "Cancelled";
+                        }
+                        else if (item.Completed != null)
+                        {
+                            status = "Completed";
+                        }
+                        else
+                        {
+                            status = "Open";
+                        }
+
+
+
+                        <tr>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.OrderId)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.TableNumber)
+                            </td>
+                            <td>
+                                &pound;@Html.DisplayFor(modelItem => item.TotalPrice)
+                            </td>
+                            <td>
+                                @status
+                            </td>
+
+                            <td>
+                                @{
+                                    TimeSpan ts = DateTime.Now - item.Created;
+                                    if (ts.TotalMinutes < 60)
+                                    {
+                                        <p>
+                                            @Math.Round(ts.TotalMinutes, 0)
+                                            min(s) ago
+                                        </p>
+                                    }
+                                    else if (ts.TotalHours < 24)
+                                    {
+                                        <p>
+                                            @Math.Round(ts.TotalHours, 0)
+                                            hour(s) ago
+                                        </p>
+                                    }
+                                    else
+                                    {
+                                        @item.Created;
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @{
+                                    foreach (var ol in item.OrderLines)
+                                    {
+                                        decimal linePrice = Math.Round(ol.Quantity * ol.UnitPrice, 2);
+
+                                        <ul>
+                                            <li> @ol.Quantity x @ol.ItemName &#64; &pound;@Math.Round(ol.UnitPrice, 2)  [&pound;@linePrice]</li>
+                                        </ul>
+                                    }
+                                }
+                            </td>
+                            <td>
+                                @{
+                                    if (item.Cancelled == null && item.Completed == null)
+                                    {
+                                        <a asp-action="OrderComplete" asp-route-id="@item.OrderId">Mark as Completed</a>
+                                    }
+                                }
+
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <h1>No Live Orders Found</h1>
+        <p>New orders will appear here when they're placed.</p>
+    }
+}

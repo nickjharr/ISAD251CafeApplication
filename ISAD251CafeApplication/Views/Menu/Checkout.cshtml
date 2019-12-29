@@ -1,4 +1,4 @@
-﻿@model IEnumerable<ISAD251CafeApplication.Models.Items>
+﻿@model IEnumerable<ISAD251CafeApplication.Models.OrderLines>
 
 @{
     ViewData["Title"] = "Index";
@@ -20,64 +20,81 @@
 </script>
 
 
-<h2>Checkout - Finalise your order</h2>
-
 @{
-    if (Model != null)
+    if (Model != null && Model.Count() > 0)
     {
+        decimal total = 0;
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ItemName)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ItemDescription)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ItemPrice)
-                    </th>
+                    <div class="row" style="margin-left:50px; ">
+                        <div class="col-sm-4">
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Review Your Order
+                                </div>
+                                <div class="panel-body">
+                                    @foreach (var item in Model)
+                                    {
 
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
+                                        <div class="row">
+                                            <div class="col-sm-7">
+                                                @item.Quantity x @item.ItemName
+                                            </div>
+                                            <div class="col-sm-2">
+                                                &pound;@Math.Round((item.UnitPrice * item.Quantity), 2)
+                                            </div>
+                                            <div class="col-sm-3">
+                                                @{
+                                                    using (Html.BeginForm("RemoveItem", "Menu", FormMethod.Post))
+                                                    {
+                                                        <input type="hidden" name="itemId" class="btn btn-danger" value="@item.ItemId" />
+                                                        <input type="submit" class="btn btn-danger" value="Remove" />
+                                                    }
+                                                }
 
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ItemName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ItemDescription)
-                        </td>
-                        <td>
-                            £@Html.DisplayFor(modelItem => item.ItemPrice)
-                        </td>
-                        <td>
-                            <a asp-action="RemoveItem" asp-route-id="@item.ItemId">Remove</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        <p>
-            Total Price: £@Math.Round(Model.Sum(x => x.ItemPrice), 2)
-        </p>
-        <input type="number" id="txtTableNumber" min="1" max="30" pattern="/d+" value="" />
+                                            </div>
+                                        </div>
+                                        total += (item.UnitPrice * item.Quantity);
+                                    }
 
-        <input type="button" class="btn-default" id="btnPlaceOrder" value="Place Order" />
+                                    <br />
+                                    @{
+                                        decimal subtotal = (total / 120) * 100;
+                                        decimal vat = total - subtotal;
+                                    }
+                                <div class="col-sm-12">
+                                    Subtotal = &pound;@Math.Round(subtotal, 2) <br />
+                                    VAT = &pound;@Math.Round(vat, 2) <br />
+                                    <b>Total = &pound;@Math.Round(total, 2)</b>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
+                    <div class="row" style="margin-left:50px">
+                        <div class="col-sm-4" >
+                            <div class="panel panel-default">
+                                <div class="panel-heading">
+                                    Table Number
+                                </div>
+                                <div class="panel-body">
+                                    <div class="col-sm-3">
+                                        <input type="number" id="txtTableNumber" class="form-control" min="1" max="30" pattern="/d+" value="" />
+                                    </div>
+                                    
+                                    <input type="button" class="btn btn-primary" id="btnPlaceOrder" value="Place Order" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
     }
     else
     {
-
+        <h1>Oops</h1>
         <p>Your shopping basket appears to be empty. We'll just redirect you back to the <a href="/menu">menu!</a></p>
         <script>
             setTimeout(function () {
-                window.location.href = "/menu";
+                window.location.href = "/Menu";
             }, 3000);
         </script>
     }

@@ -19,12 +19,12 @@ namespace ISAD251CafeApplication.Controllers.Admin
 
         public IActionResult Index()
         {
-        
-            return View(_context.Items.ToList().OrderBy(x=>x.ItemCategory));
+            return View(_context.Items.OrderBy(x => x.ItemCategory));
         }
 
         public IActionResult Create()
         {
+            
             return View();
         }
 
@@ -44,9 +44,9 @@ namespace ISAD251CafeApplication.Controllers.Admin
         [HttpPost]
         public ActionResult Edit([Bind("ItemId,ItemCategory,ItemName,ItemDescription,ItemPrice,ItemStock,Active,Created")] Items updatedItem)
         {
-            //TODO propogate this method of updating stuff 
-            if (ModelState.IsValid)
+           if (ModelState.IsValid)
             {
+
                 _context.Entry(updatedItem).State = EntityState.Modified;
                 _context.SaveChanges();
             }
@@ -60,10 +60,8 @@ namespace ISAD251CafeApplication.Controllers.Admin
         
         [Route("[controller]/[action]/{term}")]
         public IActionResult ItemSearch(string term)
-            {
-            return View(_context.Items.Where(x => x.ItemName.Contains(term)));
-                
-                
+        {
+            return View(_context.Items.Where(x => x.ItemName.Contains(term))); 
         }
 
 
@@ -77,8 +75,10 @@ namespace ISAD251CafeApplication.Controllers.Admin
         {
             Items item = _context.Items.Find(id);
             item.Active = !item.Active;
+
             _context.Entry(item).State = EntityState.Modified;
             _context.SaveChanges();
+
             return RedirectToAction("Index");
         }
     }

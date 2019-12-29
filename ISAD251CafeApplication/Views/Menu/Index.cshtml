@@ -1,36 +1,116 @@
-﻿@model IEnumerable<ISAD251CafeApplication.Models.Items>
-
+﻿@model ISAD251CafeApplication.Models.ViewModels.MenuAndBasketViewModel
+@using Microsoft.AspNetCore.Http;
+@using Newtonsoft.Json;
+@using System.Web;
 @{
     ViewData["Title"] = "Index";
 }
 
 
+<div class="menu_container row" style="margin-left:50px; opacity:0.8;">
+    <div class="col-sm-5">
+        @{
+            if (Model != null && Model.Menu.Count() > 0)
+            {
+                @foreach (var item in Model.Menu)
+                {
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <div id="menuItem" class="row">
+                                <div id="itemInfo" class="col-sm-8">
+                                    <b>@Html.DisplayFor(modelItem => item.ItemName)</b>
+                                    <br />
+                                    <i>@Html.DisplayFor(modelItem => item.ItemDescription)</i>
+                                </div>
 
-<h2>ISAD Cafe Menu</h2>
+                                <div id="price" class="col-sm-2">
+                                    <b>&pound;@Html.DisplayFor(modelItem => item.ItemPrice)</b>
+                                </div>
+                                <div id="action" class="col-sm-2">
+                                    @{
+                                        using (Html.BeginForm("AddBasket", "Menu", FormMethod.Post))
+                                        {
+                                            <input type="hidden" name="itemId" value="@item.ItemId" />
+                                            <input type="submit" class="btn btn-primary" value="Add" />
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                                        }
+                                        }
 
-<table class="table">
-    <tbody>
+                                        else
+                                        {
+                <h1>There's currently nothing here</h1>
+                <p>Check back again soon</p>
+                                        }
 
-        @foreach (var item in Model)
-        {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.ItemName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ItemDescription)
-            </td>
-            <td>
-                £@Html.DisplayFor(modelItem => item.ItemPrice)
-            </td>
-            <td>
-                <a asp-action="AddBasket" asp-route-id="@item.ItemId">Add To Order</a> 
-            </td>
-        </tr>
         }
-    </tbody>
-</table>
+    </div>
+    <div class="col-sm-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Your Order
+            </div>
+            <div class="panel-body">
+                
+                @{
+                    decimal subTotal = 0;
+                    @foreach (OrderLines ol in Model.BasketPreview)
+                    {
+                        <div class="col-sm-8">
+                            @ol.ItemName x @ol.Quantity
+                        </div>
+                        <div class="col-sm-2">
+                            &pound;@Math.Round(ol.UnitPrice * ol.Quantity, 2)
+                        </div>
+                        <div class="col-sm-2">
+                            @{
+                                using (Html.BeginForm("RemoveItem", "Menu", FormMethod.Post))
+                                {
+                                    <input type="hidden" name="itemId" value="@ol.ItemId" />
+                                    <input type="submit" class="btn btn-danger pull-right" value="Remove" />
+                                }
 
-<div style="text-align:right; padding-right:85px">
-    <input id ="btnCheckout" type="button" class="btn-default" value="Complete Order" style="text-align: right;" onclick="window.location.href='/Menu/Checkout'" />
+                                subTotal += (ol.UnitPrice * ol.Quantity);
+
+                            }
+                        </div>
+                    }
+                }
+
+                @{
+                    if (Model.BasketPreview.Count() > 0)
+                    {
+                        <div class="col-sm-6" style="padding-top:10px;">
+                            <b>Subtotal</b>
+                        </div>
+
+                        <div class="col-sm-1" style="padding-top:10px;">
+                            <b>&pound;@Math.Round(subTotal, 2)</b>
+                        </div>
+
+                        <div class="col-sm-2" style="padding-top:10px;">
+                            <input id="btnCheckout" type="button" class="btn btn-primary pull-right" value="Complete Order" onclick="window.location.href='/Menu/Checkout'" />
+                        </div>
+                    }
+                    else
+                    {
+                        <p>Nothing here yet, use the menu to the left to add items to your order</p>
+                    }
+
+                }
+
+            </div>
+
+
+
+        </div>
+    </div>
 </div>
+
+
+
+

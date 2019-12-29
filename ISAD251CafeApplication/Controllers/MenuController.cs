@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ISAD251CafeApplication.Helpers;
 using ISAD251CafeApplication.Models;
+using ISAD251CafeApplication.Models.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 
 namespace ISAD251CafeApplication.Controllers
@@ -21,26 +24,68 @@ namespace ISAD251CafeApplication.Controllers
         [Route("[controller]")]
         public IActionResult Index()
         {
-            return View(_context.Menu.OrderBy(x => x.ItemCategory));
+
+            //TODO Investigate. Menu doesn't seem to return view results
+            //Brings back all results unless Linq filtered here.
+            List<Items> basket = GetBasketAsList();
+            List<Items> menuItems = _context.Menu.Where(x => x.Active == true)
+                                                    .OrderBy(x => x.ItemCategory)
+                                                    .ToList();
+
+            MenuAndBasketViewModel model = new MenuAndBasketViewModel();
+            model.Menu = menuItems;
+            model.BasketPreview = ConvertToOrderLines(basket);
+            ManageOrderLines.PopulateItemNames( model.BasketPreview, _context);
+
+            return View(model);
         }
 
-        //TODO HttpPost?
-        [Route("[controller]/[action]/{id}")]
-        public IActionResult AddBasket(int id)
+        [HttpPost]
+        [Route("[controller]")]
+        public IActionResult AddBasket(int itemId)
         {
-            List<Items> basket = GetBasketAsList();
+            //ensure item added to basket exists 
+            if (_context.Menu.Find(itemId) != null)
+            {
+                List<Items> basket = GetBasketAsList();
+                if (_context.Menu.Find(itemId) != null)
+                {
+                    basket.Add(_context.Menu.Find(itemId));
+                }
+                
+                SetBasketInSession(basket);
+            }
 
-            UpdateQuantities(basket, id);
-            SetBasketInSession(basket);
-           
             return RedirectToAction("Index");
-        }              
+        }
+
+        [HttpPost]
+        public IActionResult RemoveItem(int itemId)
+        {
+            List<Items> items = GetBasketAsList();
+            
+            foreach (Items item in items.ToList())
+            {
+                if(item.ItemId == itemId)
+                {
+                    items.Remove(item);
+                }
+            }
+
+            SetBasketInSession(items);
+
+            return RedirectToAction("Index");
+
+        }
 
         public IActionResult Checkout()
         {
-            return View(GetBasketAsList());
+            List<OrderLines> orderLines = ConvertToOrderLines(GetBasketAsList());
+            ManageOrderLines.PopulateItemNames(orderLines, _context);
+            return View(orderLines);
         }
 
+        [Route("[controller]/[action]/{tableNumber}")]
         public IActionResult CompleteOrder(int tableNumber)
         {
             List<Items> basket = GetBasketAsList();
@@ -48,14 +93,21 @@ namespace ISAD251CafeApplication.Controllers
 
             Orders order = new Orders(tableNumber, basket);
             order.OrderLines = ConvertToOrderLines(basket);
-            PopulateItemNames(ref order);
+            ManageOrderLines.PopulateItemNames(ref order, _context);
 
             _context.Orders.Add(order);
 
-            _context.SaveChanges();                                        // commit order and orderlines to db
-            AppendOrderCookie(order.OrderId);                              // store order(s) in cookie to retreive late
 
-            return View(order);           //TODO looks gross in URL, only pass the ID and look it up again
+            _context.SaveChanges();
+
+            CookieOptions options = new CookieOptions();
+            Response.Cookies.Append("orders",
+                                   ManageCookies.AppendCookie(ref options, Request.Cookies["orders"], order.OrderId),
+                                   options);
+
+
+
+            return RedirectToAction("Index", "OrderHistory");           
         }
 
 
@@ -79,39 +131,8 @@ namespace ISAD251CafeApplication.Controllers
             HttpContext.Session.SetString("basket", JsonConvert.SerializeObject(basket));
         }
 
-        /// <summary>
-        /// Removes duplicate entries in list and updates remaining entry's
-        /// quantity property as required. 
-        /// </summary>
-        /// <param name="basket"></param>
-        /// <param name="id"></param>
+       
         
-        
-        private void UpdateQuantities(List<Items> basket, int id)
-        {
-            int i = 0;
-            bool duplicateFound = false;
-            Items tempItem;
-
-            while (duplicateFound == false && i < basket.Count)
-            {
-                if (basket[i].ItemId == id)
-                {
-                    tempItem = basket[i];
-                    basket.Add(tempItem);
-                    duplicateFound = true;
-                }
-
-                i++;
-            }
-
-            if (duplicateFound != true)
-            {
-                Items item = _context.Menu.Find(id);
-                basket.Add(item);
-            }
-        }
-
         /// <summary>
         /// Converts a List<Items> (shopping basket) to List of orderLines
         /// Ensures each item only listed once and allocates appropriate quantity.
@@ -151,40 +172,5 @@ namespace ISAD251CafeApplication.Controllers
 
             return orderLines;
         }
-
-
-        private void AppendOrderCookie(int id)
-        {
-            string existingCookie = Request.Cookies["orders"];
-
-            List<int> orderNumbers = new List<int>();
-
-            if (existingCookie != null)
-            {
-                orderNumbers = JsonConvert.DeserializeObject<List<int>>(existingCookie);
-            }
-
-            orderNumbers.Add(id);
-
-            string newCookieValueJson = JsonConvert.SerializeObject(orderNumbers);
-
-            CookieOptions option = new CookieOptions();
-            option.Expires = DateTime.Now.AddMonths(1);
-
-            Response.Cookies.Append("orders", newCookieValueJson, option);
-        }
-
-        private void PopulateItemNames(ref Orders order)
-        {
-            foreach (var ol in order.OrderLines)
-            {
-                ol.ItemName = _context.Items.Find(ol.ItemId).ItemName;
-            }
-        }
-
-
-
-
-
     }
 }

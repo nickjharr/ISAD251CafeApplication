@@ -3,18 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using ISAD251CafeApplication.Models;
+using ISAD251CafeApplication.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using ISAD251CafeApplication.Models.ViewModels;
 
 namespace ISAD251CafeApplication.Controllers
 {
-
-    //TODO propogate null checks - been very lazy 
-    //TODO standardise list building either .Add(Stuff) or list = _context.ToList(); - difference could just be lists vs singular
-    //TODO standardise sync/async
-
-
     public class OrderHistoryController : Controller
     {
         private readonly StoreContext _context;
@@ -28,8 +24,13 @@ namespace ISAD251CafeApplication.Controllers
         [Route("[controller]")]
         public IActionResult Index()
         {
-            List<Orders> orders = GetOrdersFromCookies();
-            orders = orders.OrderBy(x => x.Created).ToList();
+
+            string test = Request.Cookies["orders"];
+            List<Orders> orders = ManageCookies.GetOrdersFromCookies(test, _context);
+            orders = orders.OrderByDescending(x => x.Created).ToList();
+
+            orders = ManageOrderLines.Build(orders, _context);
+
             return View(orders);
         }
 
@@ -37,16 +38,25 @@ namespace ISAD251CafeApplication.Controllers
         public IActionResult Index(int id)
         {
             List<Orders> orders = new List<Orders>();
-            orders.Add( _context.Orders.Find(id));
-            orders = BuildOrderlines(orders);
+            Orders orderSingle = new Orders();
+
+            orderSingle = _context.Orders.Find(id);
+
+            if (orderSingle != null)
+            {
+                orders.Add(orderSingle);
+                orders = ManageOrderLines.Build(orders, _context);
+            }
 
             return View(orders);
      
         }
 
-        public IActionResult Cancel(int id)
+        [HttpPost]
+        [Route("[controller]/[action]")]
+        public IActionResult Cancel(int orderId)
         {
-            Orders order = _context.Orders.Find(id);
+            Orders order = _context.Orders.Find(orderId);
             order.Cancelled = DateTime.Now;
 
             _context.Entry(order).State = EntityState.Modified;
@@ -54,60 +64,5 @@ namespace ISAD251CafeApplication.Controllers
 
             return RedirectToAction("Index");
         }
-
-        /// <summary>
-        /// A method to iterate through a list of orders and populate the orderlines and item name 
-        /// properties.
-        /// </summary>
-        /// <param name="orders"></param>
-        /// <returns></returns>
-        private List<Orders> BuildOrderlines(List<Orders> orders)
-        {
-            //TODO Attempt to optimise this algorithm
-            //TODO Handle nulls
-            if (orders != null)
-            {
-                foreach (Orders o in orders)
-                {
-                    o.OrderLines = _context.OrderLines
-                        .Where(x => x.OrderId == o.OrderId)
-                        .ToList();
-
-
-                    foreach (OrderLines ol in o.OrderLines)
-                    {
-                        ol.ItemName = _context.Items.Find(ol.ItemId).ItemName;
-                    }
-                }
-            }
-
-            return orders;
-        }
-
-        /// <summary>
-        /// A method that reads the sites cookies and retreives the customers order history. 
-        /// Converts from string to List<Items>
-        /// </summary>
-        /// <returns></returns>
-        private List<Orders> GetOrdersFromCookies()
-        {
-            string cookieString = Request.Cookies["orders"];
-            List<int> orderNumbers = new List<int>();
-            List<Orders> orders = new List<Orders>();
-            if (cookieString != null && cookieString != "")
-            {
-                orderNumbers = JsonConvert.DeserializeObject<List<int>>(cookieString);
-            }
-
-            foreach(int on in orderNumbers)
-            {
-                orders.Add(_context.Orders.Find(on));
-            }
-
-            orders = BuildOrderlines(orders);
-
-            return orders;
-        }
-
     }
 }
