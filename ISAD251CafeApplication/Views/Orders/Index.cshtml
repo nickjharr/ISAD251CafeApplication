@@ -1,9 +1,10 @@
 ﻿@model IEnumerable<ISAD251CafeApplication.Models.Orders>
 
 @{
-    ViewData["Title"] = "Order Dashboard";
+    ViewData["Title"] = "All Orders";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+
 <script>
     $(document).ready(function () {
         $("#frmOrderSearch").submit(function () {
@@ -12,131 +13,109 @@
         });
     });
 </script>
+<div class="row" style="margin-left:50px; margin-right:50px; opacity:0.8;">
+    <div class="col-sm-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Search By Order Number
+            </div>
+            <div class="panel-body">
+                <form id="frmOrderSearch" onsubmit="return false">
+                    <input type="text" id="txtSearch" />
+                    <input type="submit" id="btnSearch" class="btn btn-primary" value="Search" />
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 
-<h2>All Historical Orders</h2>
+<div class="orderhistory_container row" style="margin-left:50px; margin-right:50px; opacity:0.8;">
+    <div class="col-sm-7">
+        @{
+            if (Model != null && Model.Count() > 0)
+            {
 
-<h3>Search By Order Number:</h3>
-<form id="frmOrderSearch" onsubmit="return false">
-    <input type="text" id="txtSearch" />
-    <input type="submit" id="btnSearch" value="Search" />
-</form>
+                @foreach (var order in Model)
+                {
 
-@{
-    if (Model != null && Model.Count() > 0)
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.OrderId)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.TableNumber)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.TotalPrice)
-                    </th>
-                    <th>
-                        Status
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Created)
-                    </th>
-                    <th>
-                        Order Details
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @{
-                    foreach (var item in Model)
+                    string status = "";
+
+                    if (order.Cancelled != null)
                     {
-
-                        string status = "";
-
-                        if (item.Cancelled != null)
-                        {
-                            status = "Cancelled";
-                        }
-                        else if (item.Completed != null)
-                        {
-                            status = "Completed";
-                        }
-                        else
-                        {
-                            status = "Open";
-                        }
-
-
-
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.OrderId)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.TableNumber)
-                            </td>
-                            <td>
-                                &pound;@Html.DisplayFor(modelItem => item.TotalPrice)
-                            </td>
-                            <td>
-                                @status
-                            </td>
-
-                            <td>
-                                @{
-                                    TimeSpan ts = DateTime.Now - item.Created;
-                                    if (ts.TotalMinutes < 60)
-                                    {
-                                        <p>
-                                            @Math.Round(ts.TotalMinutes, 0)
-                                            min(s) ago
-                                        </p>
-                                    }
-                                    else if (ts.TotalHours < 24)
-                                    {
-                                        <p>
-                                            @Math.Round(ts.TotalHours, 0)
-                                            hour(s) ago
-                                        </p>
-                                    }
-                                    else
-                                    {
-                                        @item.Created;
-                                    }
-                                }
-                            </td>
-                            <td>
-                                @{
-                                    foreach (var ol in item.OrderLines)
-                                    {
-                                        decimal linePrice = Math.Round(ol.Quantity * ol.UnitPrice, 2);
-
-                                        <ul>
-                                            <li> @ol.Quantity x @ol.ItemName &#64; &pound;@Math.Round(ol.UnitPrice, 2)  [&pound;@linePrice]</li>
-                                        </ul>
-                                    }
-                                }
-                            </td>
-                            <td>
-                                @{
-                                    if (item.Cancelled == null && item.Completed == null)
-                                    {
-                                        <a asp-action="OrderComplete" asp-route-id="@item.OrderId">Mark as Completed</a>
-                                    }
-                                }
-
-                            </td>
-                        </tr>
+                        status = "Cancelled";
                     }
+                    else if (order.Completed != null)
+                    {
+                        status = "Completed";
+                    }
+                    else
+                    {
+                        status = "Active";
+                    }
+
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+
+                            <div id="orderHistoryItem" class="row">
+                                <div id="orderInfo" class="col-sm-2">
+                                    <b>Order #: @Html.DisplayFor(modelItem => order.OrderId)</b>
+                                    <br />
+                                    <i>Table: @Html.DisplayFor(modelItem => order.TableNumber), @Html.DisplayFor(modelItem => order.Created)</i>
+                                </div>
+
+                                <div id="status" class="col-sm-1">
+                                    <b>@status</b>
+                                </div>
+                                <div id="content" class="col-sm-5">
+                                    @{
+                                        foreach (OrderLines ol in order.OrderLines)
+                                        {
+
+                                            <ul>
+                                                <li>@ol.ItemName x @ol.Quantity = @Math.Round((ol.Quantity * ol.UnitPrice), 2) </li>
+                                            </ul>
+                                        }
+
+                                    }
+                                </div>
+                                <div id="totalPrice" class="col-sm-1">
+                                    <b>&pound;@Math.Round(order.TotalPrice, 2)</b>
+                                </div>
+
+                                <div id="action" class="col-sm-2">
+                                    @{
+
+                                        <div id="action" class="col-sm-1">
+                                            @{
+                                                @if (status == "Active")
+                                                {
+                                                    using (Html.BeginForm("OrderComplete", "Orders", FormMethod.Post))
+                                                    {
+                                                        <input type="hidden" name="orderId" class="form-control" value="@order.OrderId" />
+                                                        <input type="submit" class="btn btn-success" value="Mark Complete" />
+                                                    }
+                                                }
+                                            }
+
+                                        </div>
+
+                                    }
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
                 }
-            </tbody>
-        </table>
-    }
-    else
-    {
-        <h1>No Orders Found</h1>
-        <p>New orders will appear here when they're placed.</p>
-    }
-}
+            }
+            else
+            {
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <h1>No Results Found </h1>
+                        <p>Please use the search box above to locate your order</p>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>

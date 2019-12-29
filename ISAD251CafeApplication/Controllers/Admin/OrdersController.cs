@@ -22,7 +22,7 @@ namespace ISAD251CafeApplication.Controllers.Admin
         {
             List<Orders> orders = new List<Orders>();
 
-            orders = _context.Orders.OrderBy(x => x.Created).ToList();
+            orders = _context.Orders.OrderByDescending(x => x.Created).ToList();
 
             orders = ManageOrderLines.Build(orders, _context);
 
@@ -44,11 +44,12 @@ namespace ISAD251CafeApplication.Controllers.Admin
             return View(orders);
         }
 
-        [Route("[controller]/[action]/{id}")]
-        public IActionResult OrderComplete(int id)
+        [HttpPost]
+        [Route("[controller]/[action]")]
+        public IActionResult OrderComplete(int orderId)
         {
 
-            Orders order = _context.Orders.Find(id);
+            Orders order = _context.Orders.Find(orderId);
             order.Completed = DateTime.Now;
 
             _context.Entry(order).State = EntityState.Modified;

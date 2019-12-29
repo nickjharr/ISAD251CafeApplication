@@ -3,7 +3,7 @@
 <script>
     $(document).ready(function () {
         $("#frmItemSearch").submit(function () {
-            var url = "/Items/ItemSearch/" + document.getElementById("txtSearch").value
+            var url = "/Items/" + document.getElementById("txtSearch").value
             window.location.href = url;
         });
     });
@@ -15,109 +15,121 @@
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
-<h2>Index</h2>
+<div class="panel panel-default" style="opacity:0.95;">
+    <div class="panel-heading">
+        Product Management
+    </div>
+    <div class="panel-body">
 
-<form id="frmItemSearch" onsubmit="return false">
-    <input type="text" id="txtSearch" />
-    <input type="submit" id="btnSearch" value="Search" />
-</form>
+        <form id="frmItemSearch" onsubmit="return false">
+            <div class="row">
+                <div class="col-sm-3">
+                    <input type="text" class="form-control" id="txtSearch" />
+                </div>
+                <div class="col-sm-2">
+                    <input type="submit" id="btnSearch" class="btn btn-primary" value="Search" />
+                </div>    
+                <div class="col-sm-7">
+                    <a class="btn btn-success pull-right" role="button" asp-action="Create">Create New</a>
+                </div>
+            </div>
+        </form>
+        <hr />
+        @{
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-
-@{
-
-    if (Model != null && Model.Count() > 0)
-    {
-
-
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ItemId)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ItemCategory)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ItemName)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ItemDescription)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ItemPrice)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Active)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.ItemStock)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.Created)
-                    </th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ItemId)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ItemCategory)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ItemName)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ItemDescription)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ItemPrice)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Active)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.ItemStock)
-                        </td>
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Created)
-                        </td>
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.ItemId">Edit</a> |
+            if (Model != null && Model.Count() > 0)
+            {
 
 
-                            @{
-                                if (item.Active)
-                                {
-                                    <a asp-action="ToggleMenuStatus" asp-route-id="@item.ItemId">Remove From Menu</a>
-                                }
-                                else
-                                {
-                                    <a asp-action="ToggleMenuStatus" asp-route-id="@item.ItemId">Add To Menu</a>
-                                }
-                            }
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ItemId)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ItemCategory)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ItemName)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ItemDescription)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ItemPrice)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Active)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.ItemStock)
+                            </th>
+                            <th>
+                                @Html.DisplayNameFor(model => model.Created)
+                            </th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ItemId)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ItemCategory)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ItemName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ItemDescription)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ItemPrice)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Active)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.ItemStock)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.Created)
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.ItemId">Edit</a> |
 
 
-                        </td>
-                    </tr>
-                }
-            </tbody>
+                                    @{
+                                        if (item.Active)
+                                        {
+                                            <a asp-action="ToggleMenuStatus" asp-route-id="@item.ItemId">Remove From Menu</a>
+                                        }
+                                        else
+                                        {
+                                            <a asp-action="ToggleMenuStatus" asp-route-id="@item.ItemId">Add To Menu</a>
+                                        }
+                                    }
 
 
-        </table>
-    }
-    else
-    {
-        <h1>No Items Found</h1>
-        <p>There are currently no items to view. You can create one <a asp-action="Create">here</a></p> 
-    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
 
-}
+
+                </table>
+            }
+            else
+            {
+                <h1>No Items Found</h1>
+                <p>There are currently no items to view. You can create one <a asp-action="Create">here</a></p>
+            }
+
+        }
+
+    </div>
+</div>

@@ -22,6 +22,29 @@ namespace ISAD251CafeApplication.Controllers.Admin
             return View(_context.Items.OrderBy(x => x.ItemCategory));
         }
 
+        [Route("[controller]/{term}")]
+        public IActionResult Index(string term)
+        {
+            List<Items> results = new List<Items>();
+
+            try
+            {
+                int id = Convert.ToInt32(term);
+                List<Items> idResults = _context.Items.Where(x => x.ItemId == id).ToList();
+                results = idResults;
+            }
+            catch (FormatException)
+            {
+                //if entered value not an integer, search for the string in item name
+
+                List<Items> nameResults =_context.Items.Where(x => x.ItemName.Contains(term)).ToList();
+                results = nameResults;
+            }
+
+            return View(results);
+        }
+
+        [Route("[controller]/[action]")]
         public IActionResult Create()
         {
             
@@ -29,6 +52,7 @@ namespace ISAD251CafeApplication.Controllers.Admin
         }
 
         [HttpPost]
+        [Route("[controller]/[action]")]
         public IActionResult Create([Bind("ItemId,ItemCategory,ItemName,ItemDescription,ItemPrice,ItemStock,Active")] Items newItem)
         {
             _context.Entry(newItem).State = EntityState.Added;
@@ -42,7 +66,7 @@ namespace ISAD251CafeApplication.Controllers.Admin
         }
 
         [HttpPost]
-        public ActionResult Edit([Bind("ItemId,ItemCategory,ItemName,ItemDescription,ItemPrice,ItemStock,Active,Created")] Items updatedItem)
+        public ActionResult Edit([Bind("ItemId,ItemCategory,ItemName,ItemDescription,ItemPrice,ItemStock,Active")] Items updatedItem)
         {
            if (ModelState.IsValid)
             {
@@ -52,18 +76,6 @@ namespace ISAD251CafeApplication.Controllers.Admin
             }
             return RedirectToAction("Index");
         }
-
-        public IActionResult Details(int id)
-        {
-            return View(_context.Items.Find(id));
-        }
-        
-        [Route("[controller]/[action]/{term}")]
-        public IActionResult ItemSearch(string term)
-        {
-            return View(_context.Items.Where(x => x.ItemName.Contains(term))); 
-        }
-
 
         /// <summary>
         /// A method to toggle the status of an item/product. If current on sale will be removed, 
