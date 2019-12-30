@@ -1,121 +1,149 @@
 ﻿@model IEnumerable<ISAD251CafeApplication.Models.Orders>
 
 @{
-    ViewData["Title"] = "All Orders";
+    ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
-
-<script>
-    $(document).ready(function () {
-        $("#frmOrderSearch").submit(function () {
-            var url = "/Orders/" + document.getElementById("txtSearch").value
-            window.location.href = url;
+    <script>
+        $(document).ready(function () {
+            $("#frmOrderSearch").submit(function () {
+                var url = "/Orders/" + document.getElementById("txtSearch").value
+                window.location.href = url;
+            });
         });
-    });
-</script>
-<div class="row" style="margin-left:50px; margin-right:50px; opacity:0.8;">
-    <div class="col-sm-3">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Search By Order Number
-            </div>
-            <div class="panel-body">
-                <form id="frmOrderSearch" onsubmit="return false">
-                    <input type="text" id="txtSearch" />
-                    <input type="submit" id="btnSearch" class="btn btn-primary" value="Search" />
-                </form>
-            </div>
+
+    </script>
+
+
+    <div class="panel panel-default" style="opacity:0.95;">
+        <div class="panel-heading">
+            All Orders
         </div>
-    </div>
-</div>
+        <div class="panel-body">
 
-<div class="orderhistory_container row" style="margin-left:50px; margin-right:50px; opacity:0.8;">
-    <div class="col-sm-7">
-        @{
-            if (Model != null && Model.Count() > 0)
-            {
-
-                @foreach (var order in Model)
-                {
-
-                    string status = "";
-
-                    if (order.Cancelled != null)
-                    {
-                        status = "Cancelled";
-                    }
-                    else if (order.Completed != null)
-                    {
-                        status = "Completed";
-                    }
-                    else
-                    {
-                        status = "Active";
-                    }
-
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-
-                            <div id="orderHistoryItem" class="row">
-                                <div id="orderInfo" class="col-sm-2">
-                                    <b>Order #: @Html.DisplayFor(modelItem => order.OrderId)</b>
-                                    <br />
-                                    <i>Table: @Html.DisplayFor(modelItem => order.TableNumber), @Html.DisplayFor(modelItem => order.Created)</i>
-                                </div>
-
-                                <div id="status" class="col-sm-1">
-                                    <b>@status</b>
-                                </div>
-                                <div id="content" class="col-sm-5">
-                                    @{
-                                        foreach (OrderLines ol in order.OrderLines)
-                                        {
-
-                                            <ul>
-                                                <li>@ol.ItemName x @ol.Quantity = @Math.Round((ol.Quantity * ol.UnitPrice), 2) </li>
-                                            </ul>
-                                        }
-
-                                    }
-                                </div>
-                                <div id="totalPrice" class="col-sm-1">
-                                    <b>&pound;@Math.Round(order.TotalPrice, 2)</b>
-                                </div>
-
-                                <div id="action" class="col-sm-2">
-                                    @{
-
-                                        <div id="action" class="col-sm-1">
-                                            @{
-                                                @if (status == "Active")
-                                                {
-                                                    using (Html.BeginForm("OrderComplete", "Orders", FormMethod.Post))
-                                                    {
-                                                        <input type="hidden" name="orderId" class="form-control" value="@order.OrderId" />
-                                                        <input type="submit" class="btn btn-success" value="Mark Complete" />
-                                                    }
-                                                }
-                                            }
-
-                                        </div>
-
-                                    }
-                                </div>
-
-                            </div>
-                        </div>
+            <form id="frmOrderSearch" onsubmit="return false">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" id="txtSearch" placeholder="Search By Order ID" />
                     </div>
-                }
-            }
-            else
-            {
-                <div class="panel panel-default">
-                    <div class="panel-body">
-                        <h1>No Results Found </h1>
-                        <p>Please use the search box above to locate your order</p>
+                    <div class="col-sm-2">
+                        <input type="submit" id="btnSearch" class="btn btn-primary" value="Search" />
                     </div>
                 </div>
+            </form>
+            <hr />
+
+            @{
+                if (Model != null && Model.Count() > 0)
+                {
+
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.OrderId)
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TableNumber)
+                                </th>
+                                <th>
+                                    Order Content
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.TotalPrice)
+                                </th>
+                                <th>
+                                    Status
+                                </th>
+                                <th>
+                                    @Html.DisplayNameFor(model => model.Created)
+                                </th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                string status = "";
+                                DateTime? statusDateTime = null;
+
+                                if (order.Cancelled != null)
+                                {
+                                    status = "Cancelled";
+                                    statusDateTime = order.Cancelled;
+                                }
+                                else if (order.Completed != null)
+                                {
+                                    status = "Completed";
+                                    statusDateTime = order.Completed;
+                                }
+                                else
+                                {
+                                    status = "Active";
+                                }
+
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => order.OrderId)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => order.TableNumber)
+                                    </td>
+                                    <td>
+
+                                        @{
+                                            foreach (OrderLines ol in order.OrderLines)
+                                            {
+
+                                                <ul>
+                                                    <li>@ol.ItemName x @ol.Quantity = @Math.Round((ol.Quantity * ol.UnitPrice), 2) </li>
+                                                </ul>
+                                            }
+
+                                        }
+
+                                    </td>
+                                    <td>
+                                        &pound;@Html.DisplayFor(modelItem => order.TotalPrice)
+                                    </td>
+                                    <td>
+                                        @status <br /> @statusDateTime
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => order.Created)
+                                    </td>
+                                    <td>
+                                        @{
+                                            @if (status == "Active")
+                                            {
+                                                using (Html.BeginForm("OrderComplete", "Orders", FormMethod.Post))
+                                                {
+                                                    <input type="hidden" name="orderId" value="@order.OrderId" />
+                                                    <input type="hidden" name="caller" value="orders" />
+                                                    <input type="submit" class="btn btn-success" value="Mark Complete" />
+                                                }
+
+
+                                            }
+                                        }
+
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+
+                }
+                else
+                {
+                    <h1>No Orders Found</h1>
+                    <p>No orders match your search criteria </p>
+                    <a href="/Orders" role="button" class="btn btn-primary">Back to Orders</a>
+                }
             }
-        }
+
+
+        </div>
+
     </div>
-</div>
+

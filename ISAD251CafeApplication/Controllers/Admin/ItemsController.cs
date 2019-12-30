@@ -39,9 +39,17 @@ namespace ISAD251CafeApplication.Controllers.Admin
 
                 List<Items> nameResults =_context.Items.Where(x => x.ItemName.Contains(term)).ToList();
                 results = nameResults;
+
+                List<Items> descResults = _context.Items.Where(x => x.ItemDescription.Contains(term)).ToList();
+
+                foreach (Items item in descResults)
+                {
+                    results.Add(item);
+                }
+
             }
 
-            return View(results);
+            return View(results.Distinct());
         }
 
         [Route("[controller]/[action]")]
@@ -55,6 +63,7 @@ namespace ISAD251CafeApplication.Controllers.Admin
         [Route("[controller]/[action]")]
         public IActionResult Create([Bind("ItemId,ItemCategory,ItemName,ItemDescription,ItemPrice,ItemStock,Active")] Items newItem)
         {
+            
             _context.Entry(newItem).State = EntityState.Added;
             _context.SaveChanges();
             return RedirectToAction("Index");
@@ -66,7 +75,7 @@ namespace ISAD251CafeApplication.Controllers.Admin
         }
 
         [HttpPost]
-        public ActionResult Edit([Bind("ItemId,ItemCategory,ItemName,ItemDescription,ItemPrice,ItemStock,Active")] Items updatedItem)
+        public ActionResult Edit([Bind("ItemId,ItemCategory,ItemName,ItemDescription,ItemPrice,ItemStock,Active, Created")] Items updatedItem)
         {
            if (ModelState.IsValid)
             {

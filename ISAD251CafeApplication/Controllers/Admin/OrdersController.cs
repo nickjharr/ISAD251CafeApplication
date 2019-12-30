@@ -46,7 +46,7 @@ namespace ISAD251CafeApplication.Controllers.Admin
 
         [HttpPost]
         [Route("[controller]/[action]")]
-        public IActionResult OrderComplete(int orderId)
+        public IActionResult OrderComplete(int orderId, string caller)
         {
 
             Orders order = _context.Orders.Find(orderId);
@@ -55,7 +55,14 @@ namespace ISAD251CafeApplication.Controllers.Admin
             _context.Entry(order).State = EntityState.Modified;
             _context.SaveChanges();
 
-            return RedirectToAction("Index");
+            if(caller == "orders")
+            {
+                return RedirectToAction("Index");
+            }
+
+                return RedirectToAction("Index", "Admin");
+
+            
         }
     }
 }

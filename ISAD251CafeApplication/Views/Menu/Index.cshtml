@@ -7,44 +7,154 @@
 }
 
 
-<div class="menu_container row" style="margin-left:50px; opacity:0.8;">
+<div class="menu_container row" style="margin-left:50px; opacity:0.95;">
     <div class="col-sm-5">
         @{
             if (Model != null && Model.Menu.Count() > 0)
             {
-                @foreach (var item in Model.Menu)
-                {
-                    <div class="panel panel-default">
-                        <div class="panel-body">
-                            <div id="menuItem" class="row">
-                                <div id="itemInfo" class="col-sm-8">
-                                    <b>@Html.DisplayFor(modelItem => item.ItemName)</b>
-                                    <br />
-                                    <i>@Html.DisplayFor(modelItem => item.ItemDescription)</i>
-                                </div>
 
-                                <div id="price" class="col-sm-2">
-                                    <b>&pound;@Html.DisplayFor(modelItem => item.ItemPrice)</b>
-                                </div>
-                                <div id="action" class="col-sm-2">
-                                    @{
-                                        using (Html.BeginForm("AddBasket", "Menu", FormMethod.Post))
+                <div class="panel-group">
+                    <div class="panel panel-default">
+                        <div class="panel panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#collapseSandwiches">Sandwiches</a>
+                            </h4>
+                        </div>
+                        <div id="collapseSandwiches" class="panel-collapse collapse in">
+                            <div class="panel-body">
+
+                                @{
+                                    foreach (Items item in Model.Menu)
+                                    {
+
+                                        if (item.ItemCategory == 1)
                                         {
-                                            <input type="hidden" name="itemId" value="@item.ItemId" />
-                                            <input type="submit" class="btn btn-primary" value="Add" />
+                                            <div class="row">
+                                                <div id="itemInfo" class="col-sm-8">
+                                                    <b>@Html.DisplayFor(modelItem => item.ItemName)</b>
+                                                    <br />
+                                                    <i>@Html.DisplayFor(modelItem => item.ItemDescription)</i>
+                                                </div>
+
+                                                <div id="price" class="col-sm-2">
+                                                    <b>&pound;@Html.DisplayFor(modelItem => item.ItemPrice)</b>
+                                                </div>
+                                                <div id="action" class="col-sm-2">
+                                                    @{
+                                                        using (Html.BeginForm("AddBasket", "Menu", FormMethod.Post))
+                                                        {
+                                                            <input type="hidden" name="itemId" value="@item.ItemId" />
+                                                            <input type="submit" class="btn btn-primary" value="Add" />
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                            <hr />
                                         }
                                     }
-                                </div>
+                                }
                             </div>
                         </div>
                     </div>
+
+
+                    <div class="panel panel-default">
+                        <div class="panel panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#collapseCakes">Cakes</a>
+                            </h4>
+                        </div>
+                        <div id="collapseCakes" class="panel-collapse collapse in">
+                            <div class="panel-body">
+
+                                @{
+                                    foreach (Items item in Model.Menu)
+                                    {
+
+                                        if (item.ItemCategory == 2)
+                                        {
+                                            <div class="row">
+                                                <div id="itemInfo" class="col-sm-8">
+                                                    <b>@Html.DisplayFor(modelItem => item.ItemName)</b>
+                                                    <br />
+                                                    <i>@Html.DisplayFor(modelItem => item.ItemDescription)</i>
+                                                </div>
+
+                                                <div id="price" class="col-sm-2">
+                                                    <b>&pound;@Html.DisplayFor(modelItem => item.ItemPrice)</b>
+                                                </div>
+                                                <div id="action" class="col-sm-2">
+                                                    @{
+                                                        using (Html.BeginForm("AddBasket", "Menu", FormMethod.Post))
+                                                        {
+                                                            <input type="hidden" name="itemId" value="@item.ItemId" />
+                                                            <input type="submit" class="btn btn-primary" value="Add" />
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                            <hr />
                                         }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel panel-heading">
+                            <h4 class="panel-title">
+                                <a data-toggle="collapse" href="#collapseDrinks">Drinks</a>
+                            </h4>
+                        </div>
+                        <div id="collapseDrinks" class="panel-collapse collapse in">
+                            <div class="panel-body">
+
+                                @{
+                                    foreach (Items item in Model.Menu)
+                                    {
+
+                                        if (item.ItemCategory == 3)
+                                        {
+                                            <div class="row">
+                                                <div id="itemInfo" class="col-sm-8">
+                                                    <b>@Html.DisplayFor(modelItem => item.ItemName)</b>
+                                                    <br />
+                                                    <i>@Html.DisplayFor(modelItem => item.ItemDescription)</i>
+                                                </div>
+
+                                                <div id="price" class="col-sm-2">
+                                                    <b>&pound;@Html.DisplayFor(modelItem => item.ItemPrice)</b>
+                                                </div>
+                                                <div id="action" class="col-sm-2">
+                                                    @{
+                                                        using (Html.BeginForm("AddBasket", "Menu", FormMethod.Post))
+                                                        {
+                                                            <input type="hidden" name="itemId" value="@item.ItemId" />
+                                                            <input type="submit" class="btn btn-primary" value="Add" />
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                            <hr />
+                                        }
+                                    }
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
+
+
+                </div>                   
                                         }
 
                                         else
                                         {
-                <h1>There's currently nothing here</h1>
-                <p>Check back again soon</p>
+                                            <h1>There's currently nothing here</h1>
+                                            <p>Check back again soon</p>
                                         }
 
         }
@@ -75,7 +185,7 @@
                                 }
 
                                 subTotal += (ol.UnitPrice * ol.Quantity);
-
+                                
                             }
                         </div>
                     }
@@ -84,13 +194,12 @@
                 @{
                     if (Model.BasketPreview.Count() > 0)
                     {
-                        <div class="col-sm-6" style="padding-top:10px;">
-                            <b>Subtotal</b>
-                        </div>
+                                <div class="col-sm-6" style="padding-top:10px;">
+                                    <b>Subtotal</b>
 
-                        <div class="col-sm-1" style="padding-top:10px;">
-                            <b>&pound;@Math.Round(subTotal, 2)</b>
-                        </div>
+
+                                    <b>&pound;@Math.Round(subTotal, 2)</b>
+                                </div>
 
                         <div class="col-sm-2" style="padding-top:10px;">
                             <input id="btnCheckout" type="button" class="btn btn-primary pull-right" value="Complete Order" onclick="window.location.href='/Menu/Checkout'" />
@@ -104,9 +213,6 @@
                 }
 
             </div>
-
-
-
         </div>
     </div>
 </div>

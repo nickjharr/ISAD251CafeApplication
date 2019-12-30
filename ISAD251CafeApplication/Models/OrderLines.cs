@@ -21,14 +21,12 @@ namespace ISAD251CafeApplication.Models
         public DateTime? Completed { get; set; } = null;
         public decimal UnitPrice { get; set; }
 
-
         [NotMapped]
         public string ItemName { get; set; }
 
 
         public OrderLines(Items item) //int? orderId)
         {
-            //OrderId = orderId;
             ItemId = item.ItemId;
             UnitPrice = item.ItemPrice;
         }

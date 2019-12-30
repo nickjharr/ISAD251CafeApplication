@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ISAD251CafeApplication.Models;
 using Newtonsoft.Json;
+using ISAD251CafeApplication.Helpers;
 
 namespace ISAD251CafeApplication.api
 {
@@ -28,11 +29,6 @@ namespace ISAD251CafeApplication.api
             return JsonConvert.SerializeObject(_context.Menu.ToList());
         }
 
-        [HttpGet]
-        public string GetCurrentOrders()
-        {
-            return JsonConvert.SerializeObject(_context.OpenOrders.OrderBy(x => x.Created).ToList());
-        }
 
 
     }

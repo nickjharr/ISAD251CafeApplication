@@ -9,6 +9,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="Views\Menu\CompleteOrder.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="wwwroot\images\bg\coffeeheart.jpg" />
   </ItemGroup>
 

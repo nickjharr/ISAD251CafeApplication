@@ -4,16 +4,101 @@
     ViewData["Title"] = "Index";
     Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
+<script>
+    $(document).ready(function () {
+        getOrders();
 
-<h2>Dashboard - Open Orders</h2>
+        window.setInterval(function () {
+            getOrders();
+        }, 5000);   
+    });
 
-@{
-    if (Model != null && Model.Count() > 0)
-    {
+    function clearTable() {
+        $("#ordersTable td").remove();
+    }
+
+    function markComplete(id) {
+        
+        $.post("api/Orders/OrderComplete", { id: id }, function () {
+             clearTable();
+             getOrders();
+        });
+
+    }
+
+    function getOrders() {
+        $.get("/api/Orders/GetOpenOrders", function (data) {
+
+            var tempOrders = orders;
+            var orders = $.parseJSON(data);
+            
+            if (tempOrders != orders) {
+
+                  if (orders.length > 0) {
+
+                      $("#noOrdersFound").hide();
+                      $("#ordersTable").show();
+
+                      clearTable()
+
+                      $(orders).each(function (i, order) {
+
+                            var status = "";
+
+                            if (order.Completed != null) {
+                                status = "Completed";
+                            } else if (order.Cancelled != null) {
+                                status = "Cancelled";
+                            } else {
+                                status = "Active";
+                            }
+
+                            var orderContent = "";
+
+                            $(order.OrderLines).each(function (index, orderLines) {
+
+                                var tempString = "<li>" + orderLines.ItemName + "</li>"
+                                orderContent += tempString;
+
+                            });
+
+                            $("#ordersTable").append("<tr>"
+                                + "<td>" + order.OrderId + "</td>"
+                                + "<td>" + order.TableNumber + "</td>"
+                                + "<td>" + status + "</td>"
+                                + "<td id='elapsed'>" + order.Elapsed + " mins ago</td>"
+                                + "<td><ul>" + orderContent + "</ul></td>"
+                                + "<td><input type='button' class='btn btn-success' value='Mark Complete' onclick='markComplete(" + order.OrderId + ")' /></td>"
+                                + "</tr >");
+
+                            if (order.Elapsed > 10) {
+                                $("#elapsed").css('color', 'red');
+                            }
+                      });
+
+                  } else {
+
+                       $("#noOrdersFound").show();
+                       $("#ordersTable").hide();
+                  }
+            } 
+        });
+    }
+</script>
+<div class="panel panel-default" style="opacity:0.95;">
+    <div class="panel-heading">
+        Live Orders
+    </div>
+
+    <div class="panel-body">
+
+        <div id="noOrdersFound">
+            <h1>No Live Orders Found</h1>
+            <p>New orders will appear here when they're placed.</p>
+        </div>
 
 
-
-        <table class="table">
+        <table id="ordersTable" class="table">
             <thead>
                 <tr>
                     <th>
@@ -21,9 +106,6 @@
                     </th>
                     <th>
                         @Html.DisplayNameFor(model => model.TableNumber)
-                    </th>
-                    <th>
-                        @Html.DisplayNameFor(model => model.TotalPrice)
                     </th>
                     <th>
                         Status
@@ -37,95 +119,10 @@
                     <th></th>
                 </tr>
             </thead>
-            <tbody>
-                @{
-                    foreach (var item in Model)
-                    {
+            <tbody id="tableContent">
 
-                        string status = "";
-
-                        if (item.Cancelled != null)
-                        {
-                            status = "Cancelled";
-                        }
-                        else if (item.Completed != null)
-                        {
-                            status = "Completed";
-                        }
-                        else
-                        {
-                            status = "Open";
-                        }
-
-
-
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.OrderId)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.TableNumber)
-                            </td>
-                            <td>
-                                &pound;@Html.DisplayFor(modelItem => item.TotalPrice)
-                            </td>
-                            <td>
-                                @status
-                            </td>
-
-                            <td>
-                                @{
-                                    TimeSpan ts = DateTime.Now - item.Created;
-                                    if (ts.TotalMinutes < 60)
-                                    {
-                                        <p>
-                                            @Math.Round(ts.TotalMinutes, 0)
-                                            min(s) ago
-                                        </p>
-                                    }
-                                    else if (ts.TotalHours < 24)
-                                    {
-                                        <p>
-                                            @Math.Round(ts.TotalHours, 0)
-                                            hour(s) ago
-                                        </p>
-                                    }
-                                    else
-                                    {
-                                        @item.Created;
-                                    }
-                                }
-                            </td>
-                            <td>
-                                @{
-                                    foreach (var ol in item.OrderLines)
-                                    {
-                                        decimal linePrice = Math.Round(ol.Quantity * ol.UnitPrice, 2);
-
-                                        <ul>
-                                            <li> @ol.Quantity x @ol.ItemName &#64; &pound;@Math.Round(ol.UnitPrice, 2)  [&pound;@linePrice]</li>
-                                        </ul>
-                                    }
-                                }
-                            </td>
-                            <td>
-                                @{
-                                    if (item.Cancelled == null && item.Completed == null)
-                                    {
-                                        <a asp-action="OrderComplete" asp-route-id="@item.OrderId">Mark as Completed</a>
-                                    }
-                                }
-
-                            </td>
-                        </tr>
-                    }
-                }
             </tbody>
         </table>
-    }
-    else
-    {
-        <h1>No Live Orders Found</h1>
-        <p>New orders will appear here when they're placed.</p>
-    }
-}
+    </div>
+</div>
+

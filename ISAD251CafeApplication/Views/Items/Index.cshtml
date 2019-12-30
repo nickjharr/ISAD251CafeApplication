@@ -24,11 +24,11 @@
         <form id="frmItemSearch" onsubmit="return false">
             <div class="row">
                 <div class="col-sm-3">
-                    <input type="text" class="form-control" id="txtSearch" />
+                    <input type="text" class="form-control" id="txtSearch" placeholder="Search by ID, Name or Description" />
                 </div>
                 <div class="col-sm-2">
                     <input type="submit" id="btnSearch" class="btn btn-primary" value="Search" />
-                </div>    
+                </div>
                 <div class="col-sm-7">
                     <a class="btn btn-success pull-right" role="button" asp-action="Create">Create New</a>
                 </div>
@@ -39,8 +39,6 @@
 
             if (Model != null && Model.Count() > 0)
             {
-
-
                 <table class="table">
                     <thead>
                         <tr>
@@ -119,14 +117,13 @@
                             </tr>
                         }
                     </tbody>
-
-
                 </table>
             }
             else
             {
                 <h1>No Items Found</h1>
                 <p>There are currently no items to view. You can create one <a asp-action="Create">here</a></p>
+                <a href="/Items" role="button" class="btn btn-primary">Back to Products</a>
             }
 
         }
