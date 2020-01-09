@@ -4,7 +4,7 @@ ASP.NET Core MVC Application for a Cafe. ISAD251 Coursework 2019.
 
 This project is implentation of an minimum viable product (MVP) for use by a coffee shop/cafe. 
 
-Youtube Link:
+Youtube Link: https://youtu.be/3bg2e9JwcsU
 
 A customer arrives at the homepage - they then navigate to the menu and are able to add items of their choosing to a basket. Once all desired items are added to the basket, the customer checks out. During checkout the customer must provide a table number.
 
