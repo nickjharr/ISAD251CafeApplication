@@ -20,11 +20,11 @@ The admin portal can be initially accessed from /admin.           (http://cent-5
 
 Get all items:    /api/Items                  (http://cent-5-534.uopnet.plymouth.ac.uk/ISAD251/njharrington/api/Items)
 
-*retreives a list of items for sale, can implement menu easily elsewhere*
+*retrieves a list of items for sale, can implement menu easily elsewhere*
 
 Get Open Orders:  /api/Orders/GetOpenOrders   (http://cent-5-534.uopnet.plymouth.ac.uk/ISAD251/njharrington/api/Orders/GetOpenOrders)
 
-*retreives all open orders, allows admin live orders screen to update asynchronously with AJAX/jquery - meaning no need to refresh to see new orders as they come in. Also implements a check to ensure that there are new items before updating page, or you could see annoying flickers*
+*retrieves all open orders, allows admin live orders screen to update asynchronously with AJAX/jquery - meaning no need to refresh to see new orders as they come in. Also implements a check to ensure that there are new items before updating page, or you could see annoying flickers*
 
 Post Order Complete /api/Orders/OrderComplete (http://cent-5-534.uopnet.plymouth.ac.uk/ISAD251/njharrington/api/Orders/OrderComplete)
 
