@@ -1,0 +1,22 @@
+CREATE TRIGGER StockTracker
+ON OrderLines
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    UPDATE Items 
+    SET ItemStock = (ItemStock - (SELECT Quantity FROM Inserted))
+    WHERE (SELECT itemId FROM Inserted) = Items.ItemId;
+END
+GO
+
+CREATE TRIGGER OutOfStock
+ON OrderLines
+AFTER INSERT
+AS
+IF (SELECT ItemStock FROM Items WHERE ItemId = (SELECT ItemId FROM Inserted) ) <= 0
+	UPDATE Items 
+    SET Active = 0
+	WHERE (SELECT itemId FROM Inserted) = Items.ItemId;
+
+	

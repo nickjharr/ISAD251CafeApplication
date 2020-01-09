@@ -1,0 +1,19 @@
+INSERT INTO ItemCategories (ItemCategoryDesc)
+VALUES
+('Sandwiches'),
+('Cake'),
+('Drinks');
+
+
+INSERT INTO Items(ItemCategory, ItemName, ItemDescription, ItemPrice, ItemStock)
+VALUES 
+(1, 'Tuna Baguette','A baguette made with tuna', 4.5, 25),
+(1, 'Chicken Club Sandwich','A club sandwich made with chicken', 5.95, 17),
+(1, 'Hotdog','A hotdog made with sausage', 5, 22),
+(2, 'Carrot Cake', 'A cake made with carrots', 2.95, 8),
+(2, 'Cheese Cake','A cake made with cheese', 3.95, 7),
+(2, 'Chocolate Cake','A cake made with chocolate', 3.49, 15),
+(3, 'Coca Cola','A can of Coca Cola', 1.99, 48),
+(3, 'Tea','A cup of tea', 1.99, 100),
+(3, 'Coffee','A cup of Coffee', 1.89, 123),
+(3, 'Speciality Tea','A cup of speciality tea', 2.99, 24);

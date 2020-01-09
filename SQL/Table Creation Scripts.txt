@@ -1,0 +1,39 @@
+CREATE TABLE ItemCategories 
+(
+    ItemCategoryId INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    ItemCategoryDesc VARCHAR(100) NOT NULL,
+    ItemCategoryActive BIT NOT NULL DEFAULT 1
+);
+
+CREATE TABLE Orders
+(
+    OrderId INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    TableNumber INT,
+    TotalPrice MONEY NOT NULL, 
+    Cancelled DATETIME,
+    Completed DATETIME,
+    Created DATETIME2 NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE Items
+(
+    ItemId INT IDENTITY(1,1) PRIMARY KEY NOT NULL,
+    ItemCategory INT NOT NULL FOREIGN KEY REFERENCES ItemCategories(ItemCategoryId), 
+    ItemName VARCHAR(100) NOT NULL,
+    ItemDescription VARCHAR(255) NOT NULL,
+    ItemPrice MONEY NOT NULL,
+    ItemStock INT NOT NULL,
+    Active BIT NOT NULL DEFAULT 1,
+    Created DATETIME2 NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE OrderLines
+(
+    OrderId INT NOT NULL FOREIGN KEY REFERENCES Orders(OrderId),
+    ItemId INT NOT NULL FOREIGN KEY REFERENCES Items(ItemId),
+    Quantity INT NOT NULL,
+    UnitPrice MONEY NOT NULL,
+    PRIMARY KEY (OrderId, ItemId)
+);
+
+
