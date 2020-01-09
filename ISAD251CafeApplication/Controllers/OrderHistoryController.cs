@@ -25,8 +25,8 @@ namespace ISAD251CafeApplication.Controllers
         public IActionResult Index()
         {
 
-            string test = Request.Cookies["orders"];
-            List<Orders> orders = ManageCookies.GetOrdersFromCookies(test, _context);
+            
+            List<Orders> orders = ManageCookies.GetOrdersFromCookies(Request.Cookies["orders"], _context);
             orders = orders.OrderByDescending(x => x.Created).ToList();
 
             orders = ManageOrderLines.Build(orders, _context);

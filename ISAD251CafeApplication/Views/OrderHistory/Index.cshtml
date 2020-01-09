@@ -7,14 +7,14 @@
 <script>
     $(document).ready(function () {
         $("#frmOrderSearch").submit(function () {
-            var url = "/OrderHistory/" + document.getElementById("txtSearch").value
+            var url = "OrderHistory/" + document.getElementById("txtSearch").value
             window.location.href = url;
         });
     });
 </script>
 
 
-<div class="panel panel-default" style="opacity:0.95;">
+<div class="panel panel-default" style="opacity:0.95; margin:50px;">
     <div class="panel-heading">
         All Orders
     </div>

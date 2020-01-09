@@ -96,8 +96,6 @@ namespace ISAD251CafeApplication.Controllers
             ManageOrderLines.PopulateItemNames(ref order, _context);
 
             _context.Orders.Add(order);
-
-
             _context.SaveChanges();
 
             CookieOptions options = new CookieOptions();

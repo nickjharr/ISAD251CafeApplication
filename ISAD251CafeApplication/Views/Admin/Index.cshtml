@@ -27,10 +27,11 @@
     }
 
     function getOrders() {
-        $.get("/api/Orders/GetOpenOrders", function (data) {
+        $.get("api/Orders/GetOpenOrders", function (data) {
 
             var tempOrders = orders;
             var orders = $.parseJSON(data);
+            
             
             if (tempOrders != orders) {
 
@@ -66,13 +67,13 @@
                                 + "<td>" + order.OrderId + "</td>"
                                 + "<td>" + order.TableNumber + "</td>"
                                 + "<td>" + status + "</td>"
-                                + "<td id='elapsed'>" + order.Elapsed + " mins ago</td>"
+                                + "<td id='elapsed" + order.id + "'>" + order.Elapsed + " mins ago</td>"
                                 + "<td><ul>" + orderContent + "</ul></td>"
                                 + "<td><input type='button' class='btn btn-success' value='Mark Complete' onclick='markComplete(" + order.OrderId + ")' /></td>"
                                 + "</tr >");
 
-                            if (order.Elapsed > 10) {
-                                $("#elapsed").css('color', 'red');
+                          if (order.Elapsed > 10) {
+                              $("#elapsed" + order.id).css('color', 'red');
                             }
                       });
 

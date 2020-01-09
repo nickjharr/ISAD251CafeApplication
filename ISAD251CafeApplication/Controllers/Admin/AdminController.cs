@@ -31,7 +31,7 @@ namespace ISAD251CafeApplication.Controllers.Admin
 
 
             orders = ManageOrderLines.Build(orders, _context);
-   
+
             return View(orders);
         }
 

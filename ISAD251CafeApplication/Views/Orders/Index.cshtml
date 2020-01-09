@@ -7,7 +7,7 @@
     <script>
         $(document).ready(function () {
             $("#frmOrderSearch").submit(function () {
-                var url = "/Orders/" + document.getElementById("txtSearch").value
+                var url = "Orders/" + document.getElementById("txtSearch").value
                 window.location.href = url;
             });
         });
@@ -138,7 +138,7 @@
                 {
                     <h1>No Orders Found</h1>
                     <p>No orders match your search criteria </p>
-                    <a href="/Orders" role="button" class="btn btn-primary">Back to Orders</a>
+                    <a href="Orders" role="button" class="btn btn-primary">Back to Orders</a>
                 }
             }
 

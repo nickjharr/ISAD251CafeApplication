@@ -20,7 +20,7 @@ namespace ISAD251CafeApplication.Models
         public DateTime Created  { get; set; }
         public ICollection<OrderLines> OrderLines { get; set; }
         [NotMapped]
-        public int? Elapsed { get; set; }
+        public double? Elapsed { get; set; }
         public Orders(int tableNumber, List<Items> order)
         {
             TableNumber = tableNumber;

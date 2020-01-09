@@ -17,7 +17,7 @@ namespace ISAD251CafeApplication.Helpers
         /// <returns></returns>
         public static List<Orders> Build(List<Orders> orders, StoreContext context)
         {
-            //TODO Attempt to optimise this algorithm
+           
             if (orders != null)
             {
                 foreach (Orders o in orders)
@@ -26,6 +26,7 @@ namespace ISAD251CafeApplication.Helpers
                         .Where(x => x.OrderId == o.OrderId)
                         .ToList();
 
+                    o.Elapsed = Math.Round((DateTime.Now - o.Created).TotalMinutes,0);
 
                     foreach (OrderLines ol in o.OrderLines)
                     {

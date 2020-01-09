@@ -12,7 +12,7 @@
             } else if (document.getElementById("txtTableNumber").value < 1 || document.getElementById("txtTableNumber").value > 30) {
                 alert("Please enter a valid table number. (Between 1 and 30)");
             } else {
-                var url = "/Menu/CompleteOrder/" + document.getElementById("txtTableNumber").value
+                var url = "CompleteOrder/" + document.getElementById("txtTableNumber").value
                 window.location.href = url;
             }
         });
@@ -94,7 +94,7 @@
         <p>Your shopping basket appears to be empty. We'll just redirect you back to the <a href="/menu">menu!</a></p>
         <script>
             setTimeout(function () {
-                window.location.href = "/Menu";
+                window.location.href = "Menu";
             }, 3000);
         </script>
     }
