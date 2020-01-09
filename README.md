@@ -41,3 +41,5 @@ The bootstrap framework was used to manage the styling, while jquery was used to
 A third party package from NewtonSoft was used for managing serialisation and deserialisation of JSON strings.
 
 Entity Framework was used to bridge the application to the database.
+
+All image(s) licence free for any use. 
